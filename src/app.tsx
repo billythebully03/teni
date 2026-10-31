@@ -211,4 +211,25 @@ export const App = () => {
                 filter: `blur(${descBlur}px)`,
               }}
             >
-              Мы — быстрорастущая лайтовая гильдия без душных рамок и обяза
+              Мы — быстрорастущая лайтовая гильдия без душных рамок и обязаловок, ведь сами это терпеть не можем. Качаем только ключевых персонажей: 90% из них отлично усилят твой склад и гм, а остальные вовсе не сложные. Двусторонняя лояльность, балбесик, а как иначе? Крутые офицеры всегда подскажут и прикроют, чтобы ты кайфовал от игры. Держим высокую планку, но ценим душевность и уважаем твою свободу.
+            </p>
+          </div>
+
+          <div
+            style={{
+              ...styles.statsStage,
+              transform: `translate3d(0, ${statsStageY}px, 0)`,
+              pointerEvents: statsArrived ? 'auto' : 'none',
+            }}
+          >
+            <StatsCards
+              activeCardIndex={activeCardIndex}
+              highlightIntensity={highlightIntensity}
+              isTriggered={statsActive}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
