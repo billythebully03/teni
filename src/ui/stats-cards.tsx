@@ -449,6 +449,8 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
         curlRadius={14}
         finish="gloss"
         backColor="#e4e4e7"
+        borderColor="#e2e8f0"
+        borderWidth={2.5}
         initialPosition={positions.topLeft}
         draggable
         followPointer
@@ -465,6 +467,8 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
         curlRadius={14}
         finish="gloss"
         backColor="#e4e4e7"
+        borderColor="#e2e8f0"
+        borderWidth={2.5}
         initialPosition={positions.bottomRight}
         draggable
         followPointer
