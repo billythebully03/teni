@@ -62,6 +62,11 @@ export const App = () => {
 
   return (
     <div style={styles.pageWrapper}>
+      <Dock
+        currentSectionId={activeSection}
+        onSelectSection={(id) => setActiveSection(id)}
+      />
+
       <header style={styles.heroSection}>
         <div style={styles.lightLayer}>
           <LightRays
@@ -96,11 +101,6 @@ export const App = () => {
           <p style={styles.headlineText}>Активно выходят в свет</p>
         </div>
       </header>
-
-      <Dock
-        currentSectionId={activeSection}
-        onSelectSection={(id) => setActiveSection(id)}
-      />
     </div>
   );
 };
