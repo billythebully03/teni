@@ -17,6 +17,7 @@ export interface DockProps {
   currentSectionId?: string;
   progress?: number;
   onSelectSection?: (id: string) => void;
+  onSearchClick?: () => void;
   style?: CSSProperties;
 }
 
@@ -34,7 +35,7 @@ const easeInOutCubic = (t: number): number =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 const styles: Record<string, CSSProperties> = {
-  dockContainer: {
+  headerWrapper: {
     position: 'fixed',
     top: 'clamp(1.5rem, 3.5vh, 2.5rem)',
     left: '50%',
@@ -43,7 +44,14 @@ const styles: Record<string, CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.65rem',
-    padding: '0.5rem 1rem',
+    userSelect: 'none',
+  },
+  dockContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    height: '46px',
+    gap: '0.65rem',
+    padding: '0 1rem',
     backgroundColor: 'rgba(14, 14, 18, 0.75)',
     backdropFilter: 'blur(24px) saturate(190%)',
     WebkitBackdropFilter: 'blur(24px) saturate(190%)',
@@ -51,7 +59,24 @@ const styles: Record<string, CSSProperties> = {
     outline: 'none',
     borderRadius: '20px',
     boxShadow: '0 16px 40px rgba(0, 0, 0, 0.45)',
-    userSelect: 'none',
+  },
+  searchButton: {
+    width: '46px',
+    height: '46px',
+    flexShrink: 0,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(14, 14, 18, 0.75)',
+    backdropFilter: 'blur(24px) saturate(190%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(190%)',
+    border: 'none',
+    outline: 'none',
+    borderRadius: '50%',
+    boxShadow: '0 16px 40px rgba(0, 0, 0, 0.45)',
+    cursor: 'pointer',
+    padding: 0,
+    transition: 'background-color 0.25s ease, transform 0.2s ease',
   },
   itemButton: {
     background: 'transparent',
@@ -79,7 +104,13 @@ const styles: Record<string, CSSProperties> = {
   },
 };
 
-export const Dock = ({ currentSectionId = 'about', progress, onSelectSection, style }: DockProps) => {
+export const Dock = ({
+  currentSectionId = 'about',
+  progress,
+  onSelectSection,
+  onSearchClick,
+  style,
+}: DockProps) => {
   const currentIndex = SECTIONS.findIndex((s) => s.id === currentSectionId);
   const activeIdx = currentIndex === -1 ? 0 : currentIndex;
 
@@ -131,63 +162,95 @@ export const Dock = ({ currentSectionId = 'about', progress, onSelectSection, st
   }, [targetProgress]);
 
   return (
-    <nav style={{ ...styles.dockContainer, ...style }} aria-label="Навигация разделов">
-      {SECTIONS.map((section, index) => {
-        const itemSegIndex = index * 2;
-        const arrowSegIndex = index * 2 + 1;
+    <div style={{ ...styles.headerWrapper, ...style }}>
+      <nav style={styles.dockContainer} aria-label="Навигация разделов">
+        {SECTIONS.map((section, index) => {
+          const itemSegIndex = index * 2;
+          const arrowSegIndex = index * 2 + 1;
 
-        const itemFill = calculateFill(itemSegIndex, displayProgress);
-        const arrowFill = index < SECTIONS.length - 1 ? calculateFill(arrowSegIndex, displayProgress) : 0;
-        const gradId = `dock-arrow-grad-${index}`;
+          const itemFill = calculateFill(itemSegIndex, displayProgress);
+          const arrowFill = index < SECTIONS.length - 1 ? calculateFill(arrowSegIndex, displayProgress) : 0;
+          const gradId = `dock-arrow-grad-${index}`;
 
-        return (
-          <div key={section.id} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <button
-              type="button"
-              onClick={() => onSelectSection?.(section.id)}
-              style={styles.itemButton}
-            >
-              <span
-                style={{
-                  backgroundImage: `linear-gradient(to right, #ffffff ${itemFill}%, rgba(255, 255, 255, 0.32) ${itemFill}%)`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  display: 'inline-block',
-                }}
+          return (
+            <div key={section.id} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <button
+                type="button"
+                onClick={() => onSelectSection?.(section.id)}
+                style={styles.itemButton}
               >
-                {section.label}
-              </span>
-            </button>
+                <span
+                  style={{
+                    backgroundImage: `linear-gradient(to right, #ffffff ${itemFill}%, rgba(255, 255, 255, 0.32) ${itemFill}%)`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    display: 'inline-block',
+                  }}
+                >
+                  {section.label}
+                </span>
+              </button>
 
-            {index < SECTIONS.length - 1 && (
-              <svg
-                width="16"
-                height="10"
-                viewBox="0 0 16 10"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                style={styles.arrowSvg}
-                aria-hidden="true"
-              >
-                <defs>
-                  <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset={`${arrowFill}%`} stopColor="#ffffff" />
-                    <stop offset={`${arrowFill}%`} stopColor="rgba(255, 255, 255, 0.22)" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M1 5H14M14 5L9.5 1M14 5L9.5 9"
-                  stroke={`url(#${gradId})`}
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            )}
-          </div>
-        );
-      })}
-    </nav>
+              {index < SECTIONS.length - 1 && (
+                <svg
+                  width="16"
+                  height="10"
+                  viewBox="0 0 16 10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  style={styles.arrowSvg}
+                  aria-hidden="true"
+                >
+                  <defs>
+                    <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset={`${arrowFill}%`} stopColor="#ffffff" />
+                      <stop offset={`${arrowFill}%`} stopColor="rgba(255, 255, 255, 0.22)" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M1 5H14M14 5L9.5 1M14 5L9.5 9"
+                    stroke={`url(#${gradId})`}
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </div>
+          );
+        })}
+      </nav>
+
+      <button
+        type="button"
+        onClick={onSearchClick}
+        aria-label="Поиск"
+        style={styles.searchButton}
+      >
+        <svg
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <circle
+            cx="11"
+            cy="11"
+            r="6.5"
+            stroke="rgba(255, 255, 255, 0.65)"
+            strokeWidth="1.8"
+          />
+          <path
+            d="M16 16L21 21"
+            stroke="rgba(255, 255, 255, 0.65)"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+        </svg>
+      </button>
+    </div>
   );
 };
 
