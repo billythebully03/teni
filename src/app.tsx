@@ -1,87 +1,95 @@
-import type { CSSProperties } from 'react';
+import { useEffect, type CSSProperties } from 'react';
 import { Lanyard } from './ui/lanyard';
 
 const styles = {
-  container: {
-    position: 'relative',
-    width: '100vw',
-    height: '100dvh',
-    overflow: 'hidden',
+  pageWrapper: {
+    width: '100%',
+    minHeight: '100dvh',
     backgroundColor: '#070709',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  } satisfies CSSProperties,
+  heroSection: {
+    position: 'relative',
+    width: '100%',
+    height: '100dvh',
+    minHeight: '640px',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     backgroundImage: `
-      radial-gradient(ellipse 70% 55% at 50% 0%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 40%, rgba(7, 7, 9, 0) 75%),
-      radial-gradient(ellipse 30% 25% at 50% 12%, rgba(255, 255, 255, 0.08) 0%, rgba(7, 7, 9, 0) 100%)
+      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 40%, rgba(7, 7, 9, 0) 75%),
+      radial-gradient(ellipse 30% 25% at 50% 10%, rgba(255, 255, 255, 0.1) 0%, rgba(7, 7, 9, 0) 100%)
     `,
   } satisfies CSSProperties,
-  canvasLayer: {
+  headerGroup: {
+    position: 'absolute',
+    top: 'clamp(2.5rem, 6vh, 4.5rem)',
+    zIndex: 2,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    padding: '0 1.5rem',
+    gap: '0.45rem',
+    pointerEvents: 'none',
+    userSelect: 'none',
+  } satisfies CSSProperties,
+  title: {
+    color: '#ffffff',
+    fontSize: 'clamp(1.35rem, 2.4vw, 2.25rem)',
+    fontWeight: 700,
+    lineHeight: 1.15,
+    letterSpacing: '-0.025em',
+  } satisfies CSSProperties,
+  subtitle: {
+    color: '#94a3b8',
+    fontSize: 'clamp(1.35rem, 2.4vw, 2.25rem)',
+    fontWeight: 700,
+    lineHeight: 1.15,
+    letterSpacing: '-0.025em',
+  } satisfies CSSProperties,
+  canvasContainer: {
     position: 'absolute',
     inset: 0,
     zIndex: 1,
   } satisfies CSSProperties,
-  overlayGrid: {
-    position: 'absolute',
-    inset: 0,
-    zIndex: 2,
-    display: 'grid',
-    gridTemplateColumns: 'minmax(0, 1.1fr) minmax(0, 0.9fr)',
-    padding: 'clamp(2rem, 5vw, 5rem)',
-    pointerEvents: 'none',
-  } satisfies CSSProperties,
-  leftSection: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    maxWidth: '42rem',
-    gap: 'clamp(0.75rem, 1.5vh, 1.25rem)',
-  } satisfies CSSProperties,
-  primaryHeading: {
-    color: '#ffffff',
-    fontSize: 'clamp(2.5rem, 4.5vw, 5rem)',
-    fontWeight: 800,
-    lineHeight: 1.05,
-    letterSpacing: '-0.035em',
-    userSelect: 'none',
-  } satisfies CSSProperties,
-  secondaryHeading: {
-    color: '#e2e8f0',
-    fontSize: 'clamp(2.5rem, 4.5vw, 5rem)',
-    fontWeight: 800,
-    lineHeight: 1.05,
-    letterSpacing: '-0.035em',
-    userSelect: 'none',
-  } satisfies CSSProperties,
-  rightSection: {
-    display: 'block',
-  } satisfies CSSProperties,
 };
 
 export const App = () => {
-  return (
-    <main style={styles.container}>
-      <div style={styles.canvasLayer}>
-        <Lanyard
-          cardColor="#8a8f99"
-          finish="metallic"
-          metal="silver"
-          anchor="center"
-          size={0.4}
-          strapColor="#0a0a0c"
-          strapLength={0.46}
-          elasticity={0.18}
-          damping={0.6}
-          intro={true}
-          interactive={true}
-        />
-      </div>
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+  }, []);
 
-      <div style={styles.overlayGrid}>
-        <section style={styles.leftSection}>
-          <h1 style={styles.primaryHeading}>Те, кто в тени</h1>
-          <h2 style={styles.secondaryHeading}>Ведем набор в гильдию</h2>
-        </section>
-        <section style={styles.rightSection} aria-hidden="true" />
-      </div>
-    </main>
+  return (
+    <div style={styles.pageWrapper}>
+      <header style={styles.heroSection}>
+        <div style={styles.headerGroup}>
+          <h1 style={styles.title}>Те, кто в тени</h1>
+          <p style={styles.subtitle}>Активно выходят в свет</p>
+        </div>
+
+        <div style={styles.canvasContainer}>
+          <Lanyard
+            cardColor="#8a8f99"
+            finish="metallic"
+            metal="silver"
+            anchor="center"
+            size={0.38}
+            strapColor="#0a0a0c"
+            strapLength={0.48}
+            elasticity={0.18}
+            damping={0.6}
+            intro={true}
+            interactive={true}
+          />
+        </div>
+      </header>
+    </div>
   );
 };
