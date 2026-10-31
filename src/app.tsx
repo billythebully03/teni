@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import LightRays from './ui/LightRays';
 import { Dock } from './ui/dock';
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   pageWrapper: {
     width: '100%',
     minHeight: '100dvh',
@@ -10,7 +10,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-  } satisfies CSSProperties,
+  },
   heroSection: {
     position: 'relative',
     width: '100%',
@@ -21,13 +21,13 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-  } satisfies CSSProperties,
+  },
   lightLayer: {
     position: 'absolute',
     inset: 0,
     zIndex: 1,
     pointerEvents: 'none',
-  } satisfies CSSProperties,
+  },
   contentBlock: {
     position: 'relative',
     zIndex: 2,
@@ -40,14 +40,14 @@ const styles = {
     gap: '0.35rem',
     pointerEvents: 'none',
     userSelect: 'none',
-  } satisfies CSSProperties,
+  },
   headlineText: {
     color: '#ffffff',
     fontSize: 'clamp(1.35rem, 2.2vw, 1.9rem)',
     fontWeight: 400,
     lineHeight: 1.25,
     letterSpacing: '-0.02em',
-  } satisfies CSSProperties,
+  },
 };
 
 export const App = () => {
