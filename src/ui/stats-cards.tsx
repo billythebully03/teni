@@ -309,63 +309,6 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
   );
 };
 
-const RunningTicker = ({
-  text,
-  speedSeconds = 48,
-}: {
-  text: string;
-  speedSeconds?: number;
-}) => {
-  const content = `${text}  ·  ${text}  ·  `;
-
-  return (
-    <div
-      style={{
-        width: '100%',
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        display: 'flex',
-        userSelect: 'none',
-        padding: '0.9rem 0',
-        backgroundColor: '#ffffff',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          width: 'max-content',
-          animation: `tickerScrollRight ${speedSeconds}s linear infinite`,
-          willChange: 'transform',
-        }}
-      >
-        <span
-          style={{
-            fontSize: 'clamp(0.82rem, 1.05vw, 0.88rem)',
-            fontWeight: 500,
-            color: '#8392a5',
-            letterSpacing: '0.01em',
-            paddingRight: '1.5rem',
-          }}
-        >
-          {content}
-        </span>
-        <span
-          aria-hidden="true"
-          style={{
-            fontSize: 'clamp(0.82rem, 1.05vw, 0.88rem)',
-            fontWeight: 500,
-            color: '#8392a5',
-            letterSpacing: '0.01em',
-            paddingRight: '1.5rem',
-          }}
-        >
-          {content}
-        </span>
-      </div>
-    </div>
-  );
-};
-
 const styles: Record<string, CSSProperties> = {
   whitePanel: {
     width: '100%',
@@ -373,8 +316,8 @@ const styles: Record<string, CSSProperties> = {
     backgroundColor: '#ffffff',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'center',
     padding: '0',
     color: '#0f172a',
     boxShadow: '0 32px 80px rgba(0, 0, 0, 0.3)',
@@ -388,7 +331,7 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: 'center',
     width: '100%',
     maxWidth: '1240px',
-    padding: 'clamp(4rem, 7vh, 6rem) 2rem',
+    padding: 'clamp(3.5rem, 6vh, 5.5rem) 2rem clamp(4.5rem, 7vh, 6.5rem) 2rem',
     margin: 'auto',
     userSelect: 'none',
   },
@@ -460,6 +403,20 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1.6,
     letterSpacing: '-0.01em',
   },
+  bottomNotice: {
+    position: 'absolute',
+    bottom: 'clamp(1.2rem, 2.8vh, 2rem)',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    fontSize: 'clamp(0.82rem, 1.05vw, 0.88rem)',
+    fontWeight: 500,
+    color: '#8392a5',
+    letterSpacing: '0.01em',
+    textAlign: 'center',
+    whiteSpace: 'nowrap',
+    userSelect: 'none',
+    pointerEvents: 'none',
+  },
 };
 
 export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
@@ -473,13 +430,6 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
 
   return (
     <div style={styles.whitePanel}>
-      <style>{`
-        @keyframes tickerScrollRight {
-          0% { transform: translate3d(-50%, 0, 0); }
-          100% { transform: translate3d(0, 0, 0); }
-        }
-      `}</style>
-
       <div style={{ ...styles.sectionWrapper, ...style }}>
         <h2 style={styles.sectionHeading}>Все-все Циферки</h2>
 
@@ -495,7 +445,11 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
                 aria-hidden="true"
               >
                 <path
-                  d="M12 1L3 5.5V12.5C3 18.2 6.9 21.8 12 23C17.1 21.8 21 18.2 21 12.5V5.5L12 1ZM13 13.5H16.5L11 20V14.5H7.5L13 4V13.5Z"
+                  d="M12 1.5L16.2 7L13.8 8.6L15.5 15.2L12 14L8.5 15.2L10.2 8.6L7.8 7L12 1.5Z"
+                  fill="#0f172a"
+                />
+                <path
+                  d="M6.2 11.2L3.5 16.5L6.8 18L8.2 22.5L12 20.2L15.8 22.5L17.2 18L20.5 16.5L17.8 11.2L12 13.8L6.2 11.2Z"
                   fill="#0f172a"
                 />
               </svg>
@@ -511,6 +465,32 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
 
             <p style={styles.descriptionText}>
               Уверенно растем и наращиваем суммарную мощь без лишней нервотрепки и духоты. Каждый участник развивает свой склад с умом, получая максимум отдачи, пока гильдия стабильно держит высокую планку в своем сегменте.
+            </p>
+          </div>
+
+          <div style={styles.statColumn}>
+            <div style={styles.headerRow}>
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 1L14.8 9.2L23 12L14.8 14.8L12 23L9.2 14.8L1 12L9.2 9.2L12 1Z"
+                  fill="#0f172a"
+                />
+                <circle cx="19.5" cy="4.5" r="2.2" fill="#0f172a" />
+              </svg>
+              <span style={styles.headerTitle}>Звёзды за ВИ</span>
+            </div>
+
+            <PleasantRedTrendChart isTriggered={hasStarted} />
+
+            <p style={styles.descriptionText}>
+              Забираем стабильные 15 звезд на Темном Джео и 36 на Светлом Хоте благодаря дисциплине и приказам.
             </p>
           </div>
 
@@ -551,39 +531,12 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
               Меньше чем за год с нуля вышли на стабильный фарм Ревы. За одну ВИ забираем в среднем 35 осколков — четкие офицерские гайды, правильные модули и слаженность состава превращают сложные битвы в понятную рутину.
             </p>
           </div>
-
-          <div style={styles.statColumn}>
-            <div style={styles.headerRow}>
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  d="M12 1L14.8 9.2L23 12L14.8 14.8L12 23L9.2 14.8L1 12L9.2 9.2L12 1Z"
-                  fill="#0f172a"
-                />
-                <circle cx="19.5" cy="4.5" r="2.2" fill="#0f172a" />
-              </svg>
-              <span style={styles.headerTitle}>Звёзды за ВИ</span>
-            </div>
-
-            <PleasantRedTrendChart isTriggered={hasStarted} />
-
-            <p style={styles.descriptionText}>
-              Забираем максимум звезд на ключевых картах: стабильные 15 на Темном Джео и 36 на Светлом Хоте благодаря дисциплине и точечным приказам офицеров.
-            </p>
-          </div>
         </div>
       </div>
 
-      <RunningTicker
-        text="Цифры обновляются раз в неделю, так что данные могут немножко отставать от реальных  ·  Лишь за последний месяц мы прибавили больше 25 млн. гм"
-        speedSeconds={44}
-      />
+      <div style={styles.bottomNotice}>
+        Цифры обновляются еженедельно  ·  За последний месяц мы прибавили больше 25 млн. гм
+      </div>
     </div>
   );
 };
