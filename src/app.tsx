@@ -1,5 +1,6 @@
-import { useEffect, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import LightRays from './ui/LightRays';
+import { Dock } from './ui/dock';
 
 const styles = {
   pageWrapper: {
@@ -8,6 +9,7 @@ const styles = {
     backgroundColor: '#000000',
     display: 'flex',
     flexDirection: 'column',
+    fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   } satisfies CSSProperties,
   heroSection: {
     position: 'relative',
@@ -35,27 +37,22 @@ const styles = {
     justifyContent: 'center',
     textAlign: 'center',
     padding: '0 1.5rem',
-    gap: '0.45rem',
+    gap: '0.35rem',
     pointerEvents: 'none',
     userSelect: 'none',
   } satisfies CSSProperties,
-  primaryText: {
+  headlineText: {
     color: '#ffffff',
-    fontSize: 'clamp(1.1rem, 1.8vw, 1.5rem)',
-    fontWeight: 600,
+    fontSize: 'clamp(1.35rem, 2.2vw, 1.9rem)',
+    fontWeight: 400,
     lineHeight: 1.25,
-    letterSpacing: '-0.015em',
-  } satisfies CSSProperties,
-  secondaryText: {
-    color: '#8e8e93',
-    fontSize: 'clamp(1.1rem, 1.8vw, 1.5rem)',
-    fontWeight: 600,
-    lineHeight: 1.25,
-    letterSpacing: '-0.015em',
+    letterSpacing: '-0.02em',
   } satisfies CSSProperties,
 };
 
 export const App = () => {
+  const [activeSection, setActiveSection] = useState('about');
+
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
@@ -95,10 +92,15 @@ export const App = () => {
         </div>
 
         <div style={styles.contentBlock}>
-          <h1 style={styles.primaryText}>Те, кто в тени</h1>
-          <p style={styles.secondaryText}>Активно выходят в свет</p>
+          <h1 style={styles.headlineText}>Те, кто в тени</h1>
+          <p style={styles.headlineText}>Активно выходят в свет</p>
         </div>
       </header>
+
+      <Dock
+        currentSectionId={activeSection}
+        onSelectSection={(id) => setActiveSection(id)}
+      />
     </div>
   );
 };
