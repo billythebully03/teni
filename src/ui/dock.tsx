@@ -114,16 +114,26 @@ export const Dock = ({
   const currentIndex = SECTIONS.findIndex((s) => s.id === currentSectionId);
   const activeIdx = currentIndex === -1 ? 0 : currentIndex;
 
-  const targetProgress =
-    typeof progress === 'number'
-      ? Math.max(0, Math.min(1, progress))
-      : (activeIdx * 2 + 1) / TOTAL_SEGMENTS;
+  const isExternalProgress = typeof progress === 'number';
+  const targetProgress = isExternalProgress
+    ? Math.max(0, Math.min(1, progress))
+    : (activeIdx * 2 + 1) / TOTAL_SEGMENTS;
 
   const [displayProgress, setDisplayProgress] = useState(targetProgress);
   const progressRef = useRef(targetProgress);
   const animFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (isExternalProgress) {
+      if (animFrameRef.current !== null) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
+      }
+      progressRef.current = targetProgress;
+      setDisplayProgress(targetProgress);
+      return;
+    }
+
     const startVal = progressRef.current;
     const endVal = targetProgress;
     if (Math.abs(startVal - endVal) < 0.001) return;
@@ -159,7 +169,7 @@ export const Dock = ({
         cancelAnimationFrame(animFrameRef.current);
       }
     };
-  }, [targetProgress]);
+  }, [targetProgress, isExternalProgress]);
 
   return (
     <div style={{ ...styles.headerWrapper, ...style }}>
