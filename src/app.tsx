@@ -2,6 +2,8 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import LightRays from './ui/LightRays';
 import { Dock } from './ui/dock';
 
+const TOTAL_SEGMENTS = 9;
+
 const styles: Record<string, CSSProperties> = {
   pageWrapper: {
     width: '100%',
@@ -19,7 +21,7 @@ const styles: Record<string, CSSProperties> = {
     top: 0,
     width: '100%',
     height: '100dvh',
-    minHeight: '620px',
+    minHeight: '640px',
     backgroundColor: '#000000',
     display: 'flex',
     alignItems: 'center',
@@ -44,7 +46,7 @@ const styles: Record<string, CSSProperties> = {
     gap: '0.45rem',
     pointerEvents: 'none',
     userSelect: 'none',
-    transition: 'transform 0.1s ease-out',
+    willChange: 'transform',
   },
   headlineText: {
     color: '#ffffff',
@@ -53,16 +55,21 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1.25,
     letterSpacing: '-0.02em',
   },
-  narrativeDescription: {
-    marginTop: 'clamp(0.85rem, 1.8vh, 1.35rem)',
-    maxWidth: 'clamp(320px, 46vw, 560px)',
-    color: '#b0b0b8',
-    fontSize: 'clamp(0.92rem, 1.2vw, 1.05rem)',
-    fontWeight: 400,
-    lineHeight: 1.55,
-    letterSpacing: '-0.01em',
+  narrativeContainer: {
+    marginTop: 'clamp(1.2rem, 2.4vh, 1.8rem)',
+    maxWidth: 'clamp(340px, 50vw, 660px)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.9rem',
     willChange: 'filter, opacity, transform',
     transition: 'opacity 0.15s ease-out, filter 0.15s ease-out, transform 0.15s ease-out',
+  },
+  narrativeParagraph: {
+    color: '#b2b2ba',
+    fontSize: 'clamp(0.92rem, 1.15vw, 1.05rem)',
+    fontWeight: 400,
+    lineHeight: 1.6,
+    letterSpacing: '-0.01em',
   },
 };
 
@@ -86,15 +93,21 @@ export const App = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const titleShiftY = -stageProgress * 32;
-  const descOpacity = Math.min(1, Math.max(0, (stageProgress - 0.08) / 0.55));
+  const titleShiftY = -stageProgress * 36;
+  const descOpacity = Math.min(1, Math.max(0, (stageProgress - 0.05) / 0.5));
   const descBlur = (1 - descOpacity) * 14;
-  const descShiftY = (1 - descOpacity) * 18;
+  const descShiftY = (1 - descOpacity) * 20;
+
+  const dockProgress =
+    activeSection === 'about'
+      ? (1 + stageProgress) / TOTAL_SEGMENTS
+      : undefined;
 
   return (
     <div style={styles.pageWrapper}>
       <Dock
         currentSectionId={activeSection}
+        progress={dockProgress}
         onSelectSection={(id) => setActiveSection(id)}
       />
 
@@ -137,16 +150,24 @@ export const App = () => {
             <h1 style={styles.headlineText}>Те, кто в тени</h1>
             <p style={styles.headlineText}>Активно выходят в свет</p>
 
-            <p
+            <div
               style={{
-                ...styles.narrativeDescription,
+                ...styles.narrativeContainer,
                 opacity: descOpacity,
                 filter: `blur(${descBlur}px)`,
                 transform: `translateY(${descShiftY}px)`,
               }}
             >
-              Лайтовая гильдия без душных рамок и обязаловок. Держим высокую планку в своем сегменте, ценим скилл, чувство юмора и свободу каждого. Основаны 05.09.2025.
-            </p>
+              <p style={styles.narrativeParagraph}>
+                Мы — быстрорастущая лайтовая гильдия без душных обязаловок и загона участников в рамки, ведь сами терпеть это не можем! Вместо этого подход к требованиям у нас трижды прекрасен! Мы просим качать только обязательных для роста гильдии персонажей, 90% из которых хорошо поднимут твой склад и гм, а те 10%, которые этого не сделают — вовсе не сложные. Да-да, балбесик, у нас тут двусторонняя лояльность, а как же еще?
+              </p>
+              <p style={styles.narrativeParagraph}>
+                А еще наши крутые ребятки-офицеры помогут с любым вопросом и проследят, чтобы ты кайфовал от пребывания в нашей общине!
+              </p>
+              <p style={styles.narrativeParagraph}>
+                Проще говоря, мы не только держим высокую планку в своем сегменте, но и ценим душевность и уважаем твою свободу.
+              </p>
+            </div>
           </div>
         </div>
       </div>
