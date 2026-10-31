@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 
 export interface StatsCardsProps {
   isTriggered: boolean;
@@ -90,9 +90,27 @@ const POINTS: PointData[] = [
   },
 ];
 
+const getYOnCurve = (x: number): number => {
+  const clampX = Math.max(24, Math.min(316, x));
+  if (clampX <= 110) {
+    const t = (clampX - 24) / (110 - 24);
+    const ease = t * t * (3 - 2 * t);
+    return 130 + (101.5 - 130) * ease;
+  }
+  if (clampX <= 242) {
+    const t = (clampX - 110) / (242 - 110);
+    const ease = t * t * (3 - 2 * t);
+    return 101.5 + (60.2 - 101.5) * ease;
+  }
+  const t = (clampX - 242) / (316 - 242);
+  const ease = t * t * (3 - 2 * t);
+  return 60.2 + (42 - 60.2) * ease;
+};
+
 const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
   const [active, setActive] = useState(false);
-  const [hoveredId, setHoveredId] = useState<'tgeo' | 'shoth' | null>(null);
+  const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     if (active) return;
@@ -105,6 +123,20 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
   const areaPath = `${curvePath} L 316 130 L 24 130 Z`;
 
   const RED_ACCENT = '#e11d48';
+
+  const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const relativeX = e.clientX - rect.left;
+    const svgX = Math.max(24, Math.min(316, (relativeX / rect.width) * 340));
+    const svgY = getYOnCurve(svgX);
+    setCursorPos({ x: svgX, y: svgY });
+  };
+
+  const handlePointerLeave = () => {
+    setCursorPos(null);
+  };
 
   return (
     <div
@@ -146,11 +178,15 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
 
         <div style={{ position: 'relative', flex: 1, height: '100%' }}>
           <svg
+            ref={svgRef}
             viewBox="0 0 340 160"
+            onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
             style={{
               width: '100%',
               height: '100%',
               overflow: 'visible',
+              cursor: 'crosshair',
             }}
           >
             <defs>
@@ -191,44 +227,69 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
               }}
             />
 
+            <g
+              style={{
+                opacity: cursorPos && active ? 1 : 0,
+                transition: 'opacity 0.2s ease',
+                pointerEvents: 'none',
+              }}
+            >
+              {cursorPos && (
+                <>
+                  <line
+                    x1={cursorPos.x}
+                    y1={cursorPos.y}
+                    x2={cursorPos.x}
+                    y2="130"
+                    stroke={RED_ACCENT}
+                    strokeWidth="1.2"
+                    strokeDasharray="3 3"
+                    strokeOpacity="0.75"
+                  />
+                  <line
+                    x1={cursorPos.x}
+                    y1={cursorPos.y}
+                    x2="24"
+                    y2={cursorPos.y}
+                    stroke={RED_ACCENT}
+                    strokeWidth="1.2"
+                    strokeDasharray="3 3"
+                    strokeOpacity="0.75"
+                  />
+                  <circle cx={cursorPos.x} cy={cursorPos.y} r="8" fill={RED_ACCENT} fillOpacity="0.18" />
+                  <circle cx={cursorPos.x} cy={cursorPos.y} r="3.5" fill={RED_ACCENT} />
+                </>
+              )}
+            </g>
+
             {POINTS.map((pt, idx) => {
-              const isHovered = hoveredId === pt.id;
               const delay = idx === 0 ? 0.6 : 0.95;
 
               return (
-                <g
-                  key={pt.id}
-                  onPointerEnter={() => setHoveredId(pt.id)}
-                  onPointerLeave={() => setHoveredId(null)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <circle cx={pt.x} cy={pt.y} r="22" fill="transparent" />
-
+                <g key={pt.id} style={{ pointerEvents: 'none' }}>
                   <circle
                     cx={pt.x}
                     cy={pt.y}
-                    r={isHovered ? '9' : '6'}
+                    r="6.5"
                     fill={RED_ACCENT}
-                    fillOpacity={isHovered ? 0.25 : 0.12}
+                    fillOpacity="0.14"
                     style={{
                       transform: active ? 'scale(1)' : 'scale(0)',
                       transformOrigin: `${pt.x}px ${pt.y}px`,
-                      transition: `transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, r 0.18s ease, fill-opacity 0.18s ease`,
+                      transition: `transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
                     }}
                   />
 
                   <circle
                     cx={pt.x}
                     cy={pt.y}
-                    r={isHovered ? '4.5' : '3.5'}
-                    fill={isHovered ? '#ffffff' : RED_ACCENT}
-                    stroke={RED_ACCENT}
-                    strokeWidth={isHovered ? '2.5' : '0'}
+                    r="3.5"
+                    fill={RED_ACCENT}
                     filter="url(#pointRedGlow)"
                     style={{
                       transform: active ? 'scale(1)' : 'scale(0)',
                       transformOrigin: `${pt.x}px ${pt.y}px`,
-                      transition: `transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, r 0.18s ease, fill 0.18s ease, stroke-width 0.18s ease`,
+                      transition: `transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
                     }}
                   />
 
@@ -236,12 +297,12 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                     x={pt.x}
                     y={pt.y - 12}
                     textAnchor="middle"
-                    fill={isHovered ? RED_ACCENT : '#0f172a'}
-                    fontSize={isHovered ? '12.5' : '11'}
+                    fill={RED_ACCENT}
+                    fontSize="12"
                     fontWeight="700"
                     style={{
                       opacity: active ? 1 : 0,
-                      transition: `opacity 0.4s ease ${delay + 0.1}s, font-size 0.15s ease, fill 0.15s ease`,
+                      transition: `opacity 0.4s ease ${delay + 0.1}s`,
                     }}
                   >
                     {pt.stars}
@@ -251,12 +312,9 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                     x={pt.x}
                     y="148"
                     textAnchor="middle"
-                    fill={isHovered ? RED_ACCENT : '#64748b'}
+                    fill="#64748b"
                     fontSize="12"
-                    fontWeight={isHovered ? '700' : '500'}
-                    style={{
-                      transition: 'fill 0.15s ease, font-weight 0.15s ease',
-                    }}
+                    fontWeight="500"
                   >
                     {pt.label}
                   </text>
@@ -272,8 +330,8 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
 
 const RunningTicker = ({
   text,
-  direction = 'left',
-  speedSeconds = 38,
+  direction = 'right',
+  speedSeconds = 36,
 }: {
   text: string;
   direction?: 'left' | 'right';
@@ -289,7 +347,7 @@ const RunningTicker = ({
         whiteSpace: 'nowrap',
         display: 'flex',
         userSelect: 'none',
-        padding: '0.75rem 0',
+        padding: '0.85rem 0',
       }}
     >
       <div
@@ -349,7 +407,7 @@ const styles: Record<string, CSSProperties> = {
     alignItems: 'center',
     width: '100%',
     maxWidth: '1240px',
-    padding: 'clamp(3.5rem, 6vh, 5rem) 2rem',
+    padding: 'clamp(5.5rem, 10vh, 7.5rem) 2rem clamp(3rem, 5vh, 4rem) 2rem',
     userSelect: 'none',
   },
   sectionHeading: {
@@ -357,7 +415,7 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 'clamp(2.1rem, 3.4vw, 2.85rem)',
     fontWeight: 400,
     letterSpacing: '-0.025em',
-    marginBottom: 'clamp(2.5rem, 5vh, 4rem)',
+    marginBottom: 'clamp(3rem, 6vh, 4.5rem)',
     textAlign: 'center',
   },
   statsRow: {
@@ -443,12 +501,6 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
           100% { transform: translate3d(0, 0, 0); }
         }
       `}</style>
-
-      <RunningTicker
-        text="Цифры обновляются раз в неделю, так что данные могут немножко отставать от реальных"
-        direction="left"
-        speedSeconds={42}
-      />
 
       <div style={{ ...styles.sectionWrapper, ...style }}>
         <h2 style={styles.sectionHeading}>Все-все Циферки</h2>
