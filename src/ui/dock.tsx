@@ -8,6 +8,7 @@ export interface DockSection {
 const SECTIONS: DockSection[] = [
   { id: 'about', label: 'О нас' },
   { id: 'stats', label: 'Статистика' },
+  { id: 'roster', label: 'Наш состав' },
   { id: 'history', label: 'История' },
   { id: 'apply', label: 'Заявка' },
 ];
@@ -21,20 +22,20 @@ export interface DockProps {
 const styles = {
   dockContainer: {
     position: 'fixed',
-    bottom: 'clamp(1.25rem, 3.5vh, 2.5rem)',
+    top: 'clamp(1.5rem, 3.5vh, 2.5rem)',
     left: '50%',
     transform: 'translateX(-50%)',
     zIndex: 50,
     display: 'flex',
     alignItems: 'center',
-    gap: '0.4rem',
-    padding: '0.35rem 0.65rem',
-    backgroundColor: 'rgba(22, 22, 26, 0.72)',
-    backdropFilter: 'blur(20px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '16px',
-    boxShadow: '0 12px 36px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(255, 255, 255, 0.06)',
+    gap: '0.65rem',
+    padding: '0.45rem 0.95rem',
+    backgroundColor: 'rgba(18, 18, 22, 0.78)',
+    backdropFilter: 'blur(24px) saturate(190%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(190%)',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+    borderRadius: '20px',
+    boxShadow: '0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12)',
     userSelect: 'none',
   } satisfies CSSProperties,
   itemButton: {
@@ -42,33 +43,28 @@ const styles = {
     border: 'none',
     outline: 'none',
     cursor: 'pointer',
-    padding: '0.4rem 0.65rem',
+    padding: '0.45rem 0.85rem',
+    borderRadius: '12px',
     fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    fontSize: '0.85rem',
+    fontSize: '0.95rem',
+    fontWeight: 500,
     lineHeight: 1,
-    letterSpacing: '-0.01em',
-    transition: 'color 0.25s ease, opacity 0.25s ease',
+    letterSpacing: '-0.015em',
+    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
   } satisfies CSSProperties,
   activeItem: {
     color: '#ffffff',
-    fontWeight: 500,
-    opacity: 1,
-  } satisfies CSSProperties,
-  idleItem: {
-    color: '#ffffff',
-    fontWeight: 400,
-    opacity: 0.38,
-  } satisfies CSSProperties,
-  connectorTrack: {
-    width: '14px',
-    height: '2px',
-    borderRadius: '9999px',
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    flexShrink: 0,
-    transition: 'background-color 0.25s ease',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.25)',
   } satisfies CSSProperties,
-  activeConnectorTrack: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+  completedItem: {
+    color: '#ffffff',
+    backgroundColor: 'transparent',
+    opacity: 0.92,
+  } satisfies CSSProperties,
+  pendingItem: {
+    color: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: 'transparent',
   } satisfies CSSProperties,
 };
 
@@ -79,29 +75,50 @@ export const Dock = ({ currentSectionId = 'about', onSelectSection, style }: Doc
   return (
     <nav style={{ ...styles.dockContainer, ...style }} aria-label="Навигация разделов">
       {SECTIONS.map((section, index) => {
-        const isCompletedOrActive = index <= activeIdx;
-        const isItemActive = index === activeIdx;
+        const isCompleted = index < activeIdx;
+        const isActive = index === activeIdx;
+        const isArrowActive = index < activeIdx;
+
+        let itemStyle = styles.pendingItem;
+        if (isActive) itemStyle = styles.activeItem;
+        else if (isCompleted) itemStyle = styles.completedItem;
 
         return (
-          <div key={section.id} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <div key={section.id} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <button
               type="button"
               onClick={() => onSelectSection?.(section.id)}
               style={{
                 ...styles.itemButton,
-                ...(isItemActive ? styles.activeItem : styles.idleItem),
+                ...itemStyle,
               }}
             >
               {section.label}
             </button>
+
             {index < SECTIONS.length - 1 && (
-              <span
+              <svg
+                width="16"
+                height="10"
+                viewBox="0 0 16 10"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
                 style={{
-                  ...styles.connectorTrack,
-                  ...(isCompletedOrActive && index < activeIdx ? styles.activeConnectorTrack : {}),
+                  flexShrink: 0,
+                  opacity: isArrowActive ? 1 : 0.22,
+                  transition: 'opacity 0.3s ease, filter 0.3s ease',
+                  filter: isArrowActive ? 'drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))' : 'none',
                 }}
                 aria-hidden="true"
-              />
+              >
+                <path
+                  d="M1 5H14M14 5L9.5 1M14 5L9.5 9"
+                  stroke={isArrowActive ? '#ffffff' : 'rgba(255, 255, 255, 0.6)'}
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             )}
           </div>
         );
