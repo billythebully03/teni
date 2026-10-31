@@ -1,4 +1,4 @@
-import { type CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 
 export interface DockSection {
   id: string;
@@ -19,7 +19,7 @@ export interface DockProps {
   style?: CSSProperties;
 }
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   dockContainer: {
     position: 'fixed',
     top: 'clamp(1.5rem, 3.5vh, 2.5rem)',
@@ -37,7 +37,7 @@ const styles = {
     borderRadius: '20px',
     boxShadow: '0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12)',
     userSelect: 'none',
-  } satisfies CSSProperties,
+  },
   itemButton: {
     background: 'transparent',
     border: 'none',
@@ -51,21 +51,21 @@ const styles = {
     lineHeight: 1,
     letterSpacing: '-0.015em',
     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-  } satisfies CSSProperties,
+  },
   activeItem: {
     color: '#ffffff',
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.25)',
-  } satisfies CSSProperties,
+  },
   completedItem: {
     color: '#ffffff',
     backgroundColor: 'transparent',
     opacity: 0.92,
-  } satisfies CSSProperties,
+  },
   pendingItem: {
     color: 'rgba(255, 255, 255, 0.35)',
     backgroundColor: 'transparent',
-  } satisfies CSSProperties,
+  },
 };
 
 export const Dock = ({ currentSectionId = 'about', onSelectSection, style }: DockProps) => {
@@ -79,7 +79,7 @@ export const Dock = ({ currentSectionId = 'about', onSelectSection, style }: Doc
         const isActive = index === activeIdx;
         const isArrowActive = index < activeIdx;
 
-        let itemStyle = styles.pendingItem;
+        let itemStyle: CSSProperties = styles.pendingItem;
         if (isActive) itemStyle = styles.activeItem;
         else if (isCompleted) itemStyle = styles.completedItem;
 
