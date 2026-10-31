@@ -1,10 +1,9 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 
 export interface StatsCardsProps {
   activeCardIndex: number;
   highlightIntensity: number;
   isTriggered: boolean;
-  onCardClick?: (index: number) => void;
   style?: CSSProperties;
 }
 
@@ -92,19 +91,32 @@ const styles: Record<string, CSSProperties> = {
     padding: 'clamp(1.5rem, 2.5vw, 2rem)',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     overflow: 'hidden',
-    transition: 'border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease',
+    boxShadow: '0 16px 36px rgba(0, 0, 0, 0.55)',
+    transition: 'transform 0.3s ease',
+  },
+  borderGlowLayer: {
+    position: 'absolute',
+    inset: 0,
+    borderRadius: '24px',
+    padding: '1px',
+    pointerEvents: 'none',
+    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+    WebkitMaskComposite: 'xor',
+    maskComposite: 'exclude',
+    transition: 'opacity 0.25s ease',
   },
   cardHeader: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.65rem',
+    zIndex: 2,
   },
   cardTitle: {
     color: '#ffffff',
     fontSize: '1.2rem',
-    fontWeight: 600,
+    fontWeight: 400,
     letterSpacing: '-0.015em',
   },
   counterRow: {
@@ -116,6 +128,7 @@ const styles: Record<string, CSSProperties> = {
     letterSpacing: '-0.03em',
     lineHeight: 1,
     marginTop: 'clamp(1.2rem, 2vh, 1.6rem)',
+    zIndex: 2,
   },
   counterSuffix: {
     marginLeft: '0.45rem',
@@ -130,23 +143,18 @@ const styles: Record<string, CSSProperties> = {
     fontSize: '0.92rem',
     lineHeight: 1.55,
     letterSpacing: '-0.01em',
-  },
-  bottomActionText: {
-    fontSize: '0.85rem',
-    fontWeight: 500,
-    color: 'rgba(255, 255, 255, 0.45)',
-    letterSpacing: '-0.01em',
-    cursor: 'pointer',
-    transition: 'color 0.25s ease',
+    zIndex: 2,
   },
   patternOverlay: {
     position: 'absolute',
     inset: 0,
     pointerEvents: 'none',
-    backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px)',
-    backgroundSize: '9px 9px',
-    opacity: 0,
-    transition: 'opacity 0.4s ease',
+    backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.32) 1.2px, transparent 1.2px)',
+    backgroundSize: '10px 10px',
+    WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.95) 100%)',
+    maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.95) 100%)',
+    transition: 'opacity 0.35s ease',
+    zIndex: 1,
   },
 };
 
@@ -154,88 +162,106 @@ export const StatsCards = ({
   activeCardIndex,
   highlightIntensity,
   isTriggered,
-  onCardClick,
   style,
 }: StatsCardsProps) => {
+  const cardRefs = [
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+  ];
+
+  const [mousePositions, setMousePositions] = useState<Array<{ x: number; y: number }>>([
+    { x: 170, y: 220 },
+    { x: 170, y: 220 },
+    { x: 170, y: 220 },
+  ]);
+
+  const handlePointerMove = (index: number, e: React.PointerEvent<HTMLDivElement>) => {
+    const el = cardRefs[index].current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setMousePositions((prev) => {
+      const copy = [...prev];
+      copy[index] = { x, y };
+      return copy;
+    });
+  };
+
   return (
     <div style={{ ...styles.container, ...style }}>
       {[0, 1, 2].map((idx) => {
         const isCurrentActive = activeCardIndex === idx;
         const currentIntensity = isCurrentActive ? highlightIntensity : 0;
+        const pos = mousePositions[idx];
 
-        const borderColor =
-          currentIntensity > 0.05
-            ? `rgba(255, 255, 255, ${0.12 + 0.3 * currentIntensity})`
-            : 'rgba(255, 255, 255, 0.08)';
-
-        const boxShadow =
-          currentIntensity > 0.05
-            ? `0 24px 48px rgba(0, 0, 0, 0.7), inset 0 0 28px rgba(255, 255, 255, ${0.05 * currentIntensity})`
-            : '0 12px 32px rgba(0, 0, 0, 0.4)';
+        const glowRadius = Math.max(160, Math.min(260, 180 + currentIntensity * 60));
+        const activeAlpha = 0.2 + 0.65 * currentIntensity;
+        const borderGradient = isCurrentActive && currentIntensity > 0.02
+          ? `radial-gradient(${glowRadius}px circle at ${pos.x}px ${pos.y}px, rgba(255, 255, 255, ${activeAlpha}), rgba(255, 255, 255, 0.12) 45%, rgba(255, 255, 255, 0.06) 100%)`
+          : 'rgba(255, 255, 255, 0.07)';
 
         return (
           <div
             key={idx}
+            ref={cardRefs[idx]}
+            onPointerMove={(e) => handlePointerMove(idx, e)}
             style={{
               ...styles.cardBase,
-              border: `1px solid ${borderColor}`,
-              boxShadow,
               transform: currentIntensity > 0.1 ? 'translateY(-4px)' : 'translateY(0)',
             }}
           >
             <div
               style={{
+                ...styles.borderGlowLayer,
+                background: borderGradient,
+                opacity: 1,
+              }}
+            />
+
+            <div
+              style={{
                 ...styles.patternOverlay,
-                opacity: currentIntensity > 0.1 ? currentIntensity * 0.9 : 0,
+                opacity: currentIntensity > 0.08 ? currentIntensity : 0,
               }}
             />
 
             {idx === 0 ? (
               <>
-                <div>
-                  <div style={styles.cardHeader}>
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M12 2L14.4 7.6L20 8.4L16 12.8L17 18.5L12 15.6L7 18.5L8 12.8L4 8.4L9.6 7.6L12 2Z"
-                        stroke="#ffffff"
-                        strokeWidth="1.8"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <span style={styles.cardTitle}>Циферки</span>
-                  </div>
-
-                  <div style={styles.counterRow}>
-                    <DigitReel targetDigit={3} delayMs={100} isTriggered={isTriggered} />
-                    <DigitReel targetDigit={0} delayMs={260} isTriggered={isTriggered} />
-                    <DigitReel targetDigit={0} delayMs={420} isTriggered={isTriggered} />
-                    <span style={styles.counterSuffix}>млн гм</span>
-                  </div>
-
-                  <p style={styles.descriptionText}>
-                    Растем и развиваемся с каждым днем, уверенно расширяя влияние и поднимая планку гильдии.
-                  </p>
-                </div>
-
-                <div>
-                  <span
-                    onClick={() => onCardClick?.(0)}
-                    style={styles.bottomActionText}
+                <div style={styles.cardHeader}>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
                   >
-                    Нажми по мне
-                  </span>
+                    <path
+                      d="M12 2L14.4 7.6L20 8.4L16 12.8L17 18.5L12 15.6L7 18.5L8 12.8L4 8.4L9.6 7.6L12 2Z"
+                      stroke="#ffffff"
+                      strokeWidth="1.8"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span style={styles.cardTitle}>Циферки</span>
                 </div>
+
+                <div style={styles.counterRow}>
+                  <DigitReel targetDigit={3} delayMs={100} isTriggered={isTriggered} />
+                  <DigitReel targetDigit={0} delayMs={260} isTriggered={isTriggered} />
+                  <DigitReel targetDigit={0} delayMs={420} isTriggered={isTriggered} />
+                  <span style={styles.counterSuffix}>млн гм</span>
+                </div>
+
+                <p style={styles.descriptionText}>
+                  Растем и развиваемся с каждым днем, уверенно расширяя влияние и поднимая планку гильдии.
+                </p>
               </>
             ) : (
-              <div style={{ display: 'flex', flex: 1, alignItems: 'flex-end' }}>
-                <span style={{ ...styles.bottomActionText, opacity: 0.25 }}>
+              <div style={{ display: 'flex', flex: 1, alignItems: 'flex-end', zIndex: 2 }}>
+                <span style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.25)' }}>
                   Скоро здесь появится блок
                 </span>
               </div>
