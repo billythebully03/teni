@@ -191,7 +191,7 @@ export const Dock = ({
               >
                 <span
                   style={{
-                    backgroundImage: `linear-gradient(to right, #ffffff ${itemFill}%, rgba(255, 255, 255, 0.32) ${itemFill}%)`,
+                    backgroundImage: `linear-gradient(to right, #ffffff ${itemFill}%, rgba(255, 255, 255, 0.32) ${Math.min(100, itemFill + 2)}%)`,
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     display: 'inline-block',
