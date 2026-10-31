@@ -34,6 +34,7 @@ const styles: Record<string, CSSProperties> = {
     inset: 0,
     zIndex: 1,
     pointerEvents: 'none',
+    willChange: 'transform',
   },
   aboutStage: {
     position: 'absolute',
@@ -117,6 +118,7 @@ export const App = () => {
   const naturalScrollUpDistance = viewportHeight * 1.05;
 
   const aboutStageY = aboutCenterOffset - scrollTransition * naturalScrollUpDistance;
+  const lightLayerY = -scrollTransition * naturalScrollUpDistance;
   const statsStageY = (1 - scrollTransition) * naturalScrollUpDistance;
 
   const statsArrived = scrollTransition >= 0.98;
@@ -169,7 +171,12 @@ export const App = () => {
 
       <div style={styles.scrollTrack}>
         <div style={styles.stickyViewport}>
-          <div style={styles.lightLayer}>
+          <div
+            style={{
+              ...styles.lightLayer,
+              transform: `translate3d(0, ${lightLayerY}px, 0)`,
+            }}
+          >
             <LightRays
               raysOrigin="top-center"
               raysColor="#ffffff"
