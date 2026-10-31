@@ -112,7 +112,7 @@ export const App = () => {
   const descOpacity = Math.min(1, Math.max(0, (aboutReveal - 0.15) / 0.85));
   const descBlur = (1 - descOpacity) * 14;
 
-  const scrollTransition = Math.min(1, Math.max(0, (scrollRatio - 0.3) / 0.18));
+  const scrollTransition = Math.min(1, Math.max(0, (scrollRatio - 0.28) / 0.2));
 
   const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
   const naturalScrollUpDistance = viewportHeight * 1.05;
@@ -125,19 +125,22 @@ export const App = () => {
   const statsActive = scrollRatio >= 0.38;
 
   useEffect(() => {
-    if (scrollRatio >= 0.45 && activeSection !== 'stats') {
+    if (scrollRatio >= 0.48 && activeSection !== 'stats') {
       setActiveSection('stats');
-    } else if (scrollRatio < 0.45 && activeSection !== 'about') {
+    } else if (scrollRatio < 0.48 && activeSection !== 'about') {
       setActiveSection('about');
     }
   }, [scrollRatio, activeSection]);
 
   let dockProgress: number;
-  if (scrollRatio < 0.45) {
-    const p = Math.min(1, scrollRatio / 0.3);
+  if (scrollRatio < 0.25) {
+    const p = Math.min(1, scrollRatio / 0.25);
     dockProgress = (1 + p) / TOTAL_SEGMENTS;
+  } else if (scrollRatio < 0.5) {
+    const p = Math.min(1, (scrollRatio - 0.25) / 0.25);
+    dockProgress = (2 + p) / TOTAL_SEGMENTS;
   } else {
-    const p = Math.min(1, (scrollRatio - 0.45) / 0.5);
+    const p = Math.min(1, (scrollRatio - 0.5) / 0.5);
     dockProgress = (3 + p) / TOTAL_SEGMENTS;
   }
 
