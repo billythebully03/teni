@@ -65,27 +65,35 @@ const DigitReel = ({
   );
 };
 
-const StarChart = ({ isTriggered }: { isTriggered: boolean }) => {
+interface TooltipState {
+  title: string;
+  subtitle: string;
+  x: number;
+  y: number;
+}
+
+const TrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
   const [active, setActive] = useState(false);
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   useEffect(() => {
     if (active) return;
     if (!isTriggered) return;
-    const timer = setTimeout(() => setActive(true), 200);
+    const timer = setTimeout(() => setActive(true), 250);
     return () => clearTimeout(timer);
   }, [isTriggered, active]);
 
-  const tgeoPercent = active ? (15 / 50) * 100 : 0;
-  const shothPercent = active ? (36 / 50) * 100 : 0;
+  const p1 = { x: 105, y: 96.5 };
+  const p2 = { x: 235, y: 56.6 };
+
+  const curvePath = 'M 24 125 C 55 118, 78 104, 105 96.5 C 150 82, 190 64, 235 56.6 C 265 51, 288 45, 308 40';
+  const areaPath = `${curvePath} L 308 125 L 24 125 Z`;
 
   return (
     <div
       style={{
+        position: 'relative',
         width: '100%',
-        height: '140px',
-        display: 'flex',
-        alignItems: 'flex-end',
-        gap: '0.85rem',
         marginTop: 'clamp(0.85rem, 1.8vh, 1.25rem)',
         userSelect: 'none',
       }}
@@ -93,148 +101,228 @@ const StarChart = ({ isTriggered }: { isTriggered: boolean }) => {
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          height: '100%',
-          paddingBottom: '24px',
-          fontSize: '0.75rem',
-          fontWeight: 600,
-          color: '#94a3b8',
-          lineHeight: 1,
-          textAlign: 'right',
-          width: '46px',
-          flexShrink: 0,
+          alignItems: 'center',
+          width: '100%',
+          height: '160px',
         }}
       >
-        <span style={{ fontSize: '0.7rem', color: '#64748b' }}>50 ★</span>
-        <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>25 ★</span>
-        <span style={{ fontSize: '0.7rem', color: '#cbd5e1' }}>0 ★</span>
-      </div>
-
-      <div
-        style={{
-          position: 'relative',
-          flex: 1,
-          height: '100%',
-          borderLeft: '1.5px solid #e2e8f0',
-          borderBottom: '1.5px solid #e2e8f0',
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-around',
-          padding: '0 0.75rem 24px 0.75rem',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            borderTop: '1px dashed #f1f5f9',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: '50%',
-            borderTop: '1px dashed #f1f5f9',
-          }}
-        />
-
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            height: '100%',
-            justifyContent: 'flex-end',
-            width: '44px',
-            position: 'relative',
+            justifyContent: 'space-between',
+            height: '95px',
+            marginBottom: '26px',
+            paddingRight: '8px',
+            fontSize: '0.72rem',
+            fontWeight: 500,
+            color: '#94a3b8',
+            textAlign: 'right',
+            width: '42px',
+            flexShrink: 0,
           }}
         >
-          <span
-            style={{
-              position: 'absolute',
-              bottom: `calc(${tgeoPercent}% + 6px)`,
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              color: '#0f172a',
-              transition: 'bottom 1.3s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-          >
-            15★
-          </span>
-          <div
-            style={{
-              width: '100%',
-              height: `${tgeoPercent}%`,
-              backgroundColor: '#334155',
-              borderRadius: '6px 6px 0 0',
-              transition: 'height 1.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              willChange: 'height',
-            }}
-          />
-          <span
-            style={{
-              position: 'absolute',
-              bottom: '-22px',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: '#334155',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            ТДжео
-          </span>
+          <span>50★</span>
+          <span>25★</span>
+          <span>0★</span>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            height: '100%',
-            justifyContent: 'flex-end',
-            width: '44px',
-            position: 'relative',
-          }}
-        >
-          <span
-            style={{
-              position: 'absolute',
-              bottom: `calc(${shothPercent}% + 6px)`,
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              color: '#0f172a',
-              transition: 'bottom 1.3s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-          >
-            36★
-          </span>
-          <div
+        <div style={{ position: 'relative', flex: 1, height: '100%' }}>
+          <svg
+            viewBox="0 0 320 150"
             style={{
               width: '100%',
-              height: `${shothPercent}%`,
-              backgroundColor: '#0f172a',
-              borderRadius: '6px 6px 0 0',
-              transition: 'height 1.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              willChange: 'height',
-            }}
-          />
-          <span
-            style={{
-              position: 'absolute',
-              bottom: '-22px',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: '#0f172a',
-              whiteSpace: 'nowrap',
+              height: '100%',
+              overflow: 'visible',
             }}
           >
-            СХот
-          </span>
+            <defs>
+              <linearGradient id="trendAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0f172a" stopOpacity="0.14" />
+                <stop offset="100%" stopColor="#0f172a" stopOpacity="0.0" />
+              </linearGradient>
+            </defs>
+
+            <line x1="24" y1="30" x2="308" y2="30" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+            <line x1="24" y1="77.5" x2="308" y2="77.5" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+            <line x1="24" y1="125" x2="308" y2="125" stroke="#e2e8f0" strokeWidth="1.5" />
+
+            <path
+              d={areaPath}
+              fill="url(#trendAreaGrad)"
+              style={{
+                opacity: active ? 1 : 0,
+                transition: 'opacity 1s ease 0.3s',
+              }}
+            />
+
+            <path
+              d={curvePath}
+              fill="none"
+              stroke="#0f172a"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                strokeDasharray: 420,
+                strokeDashoffset: active ? 0 : 420,
+                transition: 'stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+            />
+
+            <g
+              onMouseEnter={() =>
+                setTooltip({
+                  title: '15★ звезд',
+                  subtitle: 'ТДжео (Темный Джео)',
+                  x: (p1.x / 320) * 100,
+                  y: (p1.y / 150) * 100,
+                })
+              }
+              onMouseLeave={() => setTooltip(null)}
+              style={{ cursor: 'pointer' }}
+            >
+              <circle cx={p1.x} cy={p1.y} r="18" fill="transparent" />
+              <circle
+                cx={p1.x}
+                cy={p1.y}
+                r="6"
+                fill="#0f172a"
+                fillOpacity="0.15"
+                style={{
+                  transform: active ? 'scale(1)' : 'scale(0)',
+                  transformOrigin: `${p1.x}px ${p1.y}px`,
+                  transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s',
+                }}
+              />
+              <circle
+                cx={p1.x}
+                cy={p1.y}
+                r="3.5"
+                fill="#0f172a"
+                style={{
+                  transform: active ? 'scale(1)' : 'scale(0)',
+                  transformOrigin: `${p1.x}px ${p1.y}px`,
+                  transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s',
+                }}
+              />
+              <text
+                x={p1.x}
+                y={p1.y - 12}
+                textAnchor="middle"
+                fill="#0f172a"
+                fontSize="11"
+                fontWeight="700"
+                style={{
+                  opacity: active ? 1 : 0,
+                  transition: 'opacity 0.4s ease 0.7s',
+                }}
+              >
+                15★
+              </text>
+              <text
+                x={p1.x}
+                y="142"
+                textAnchor="middle"
+                fill="#64748b"
+                fontSize="11.5"
+                fontWeight="500"
+              >
+                ТДжео
+              </text>
+            </g>
+
+            <g
+              onMouseEnter={() =>
+                setTooltip({
+                  title: '36★ звезд',
+                  subtitle: 'СХот (Светлый Хот)',
+                  x: (p2.x / 320) * 100,
+                  y: (p2.y / 150) * 100,
+                })
+              }
+              onMouseLeave={() => setTooltip(null)}
+              style={{ cursor: 'pointer' }}
+            >
+              <circle cx={p2.x} cy={p2.y} r="18" fill="transparent" />
+              <circle
+                cx={p2.x}
+                cy={p2.y}
+                r="6"
+                fill="#0f172a"
+                fillOpacity="0.15"
+                style={{
+                  transform: active ? 'scale(1)' : 'scale(0)',
+                  transformOrigin: `${p2.x}px ${p2.y}px`,
+                  transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1s',
+                }}
+              />
+              <circle
+                cx={p2.x}
+                cy={p2.y}
+                r="3.5"
+                fill="#0f172a"
+                style={{
+                  transform: active ? 'scale(1)' : 'scale(0)',
+                  transformOrigin: `${p2.x}px ${p2.y}px`,
+                  transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 1s',
+                }}
+              />
+              <text
+                x={p2.x}
+                y={p2.y - 12}
+                textAnchor="middle"
+                fill="#0f172a"
+                fontSize="11"
+                fontWeight="700"
+                style={{
+                  opacity: active ? 1 : 0,
+                  transition: 'opacity 0.4s ease 1.1s',
+                }}
+              >
+                36★
+              </text>
+              <text
+                x={p2.x}
+                y="142"
+                textAnchor="middle"
+                fill="#64748b"
+                fontSize="11.5"
+                fontWeight="500"
+              >
+                СХот
+              </text>
+            </g>
+          </svg>
+
+          {tooltip && (
+            <div
+              style={{
+                position: 'absolute',
+                left: `${tooltip.x}%`,
+                top: `${tooltip.y}%`,
+                transform: 'translate(-50%, -125%)',
+                backgroundColor: '#0f172a',
+                color: '#ffffff',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                boxShadow: '0 8px 24px rgba(15, 23, 42, 0.28)',
+                pointerEvents: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                whiteSpace: 'nowrap',
+                zIndex: 10,
+              }}
+            >
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, lineHeight: 1.15 }}>
+                {tooltip.title}
+              </span>
+              <span style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>
+                {tooltip.subtitle}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -244,14 +332,15 @@ const StarChart = ({ isTriggered }: { isTriggered: boolean }) => {
 const styles: Record<string, CSSProperties> = {
   whitePanel: {
     width: '100%',
+    minHeight: '100dvh',
     backgroundColor: '#ffffff',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 'clamp(4rem, 8vh, 6.5rem) 1.5rem',
+    padding: 'clamp(5.5rem, 11vh, 8.5rem) 2rem',
     color: '#0f172a',
-    boxShadow: '0 24px 64px rgba(0, 0, 0, 0.25)',
+    boxShadow: '0 32px 80px rgba(0, 0, 0, 0.3)',
   },
   sectionWrapper: {
     display: 'flex',
@@ -263,17 +352,17 @@ const styles: Record<string, CSSProperties> = {
   },
   sectionHeading: {
     color: '#0f172a',
-    fontSize: 'clamp(2rem, 3.2vw, 2.75rem)',
-    fontWeight: 700,
+    fontSize: 'clamp(2.1rem, 3.4vw, 2.85rem)',
+    fontWeight: 400,
     letterSpacing: '-0.025em',
-    marginBottom: 'clamp(2.5rem, 5vh, 4rem)',
+    marginBottom: 'clamp(3rem, 6vh, 4.5rem)',
     textAlign: 'center',
   },
   statsRow: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
     alignItems: 'flex-start',
-    gap: 'clamp(2rem, 4vw, 3.5rem)',
+    gap: 'clamp(2.5rem, 4.5vw, 4rem)',
     width: '100%',
   },
   statColumn: {
@@ -289,18 +378,18 @@ const styles: Record<string, CSSProperties> = {
   headerTitle: {
     color: '#0f172a',
     fontSize: '1.25rem',
-    fontWeight: 600,
+    fontWeight: 400,
     letterSpacing: '-0.015em',
   },
   counterRow: {
     display: 'flex',
     alignItems: 'baseline',
     color: '#0f172a',
-    fontSize: 'clamp(2.4rem, 3.5vw, 3.1rem)',
-    fontWeight: 800,
+    fontSize: 'clamp(2.5rem, 3.8vw, 3.25rem)',
+    fontWeight: 700,
     letterSpacing: '-0.035em',
     lineHeight: 1,
-    marginTop: 'clamp(1rem, 2vh, 1.35rem)',
+    marginTop: 'clamp(1rem, 2vh, 1.4rem)',
   },
   revaImage: {
     width: '42px',
@@ -316,7 +405,7 @@ const styles: Record<string, CSSProperties> = {
   counterSuffix: {
     marginLeft: '0.45rem',
     fontSize: 'clamp(1rem, 1.3vw, 1.2rem)',
-    fontWeight: 600,
+    fontWeight: 500,
     color: '#64748b',
     letterSpacing: '-0.01em',
     lineHeight: 1,
@@ -359,7 +448,7 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
                 <path
                   d="M13 2L3 14H12L11 22L21 10H12L13 2Z"
                   stroke="#0f172a"
-                  strokeWidth="2"
+                  strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -392,7 +481,7 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
                 <path
                   d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
                   stroke="#0f172a"
-                  strokeWidth="2"
+                  strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -425,7 +514,7 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
                 <path
                   d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
                   stroke="#0f172a"
-                  strokeWidth="2"
+                  strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -433,7 +522,7 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
               <span style={styles.headerTitle}>Звёзды за ВИ</span>
             </div>
 
-            <StarChart isTriggered={hasStarted} />
+            <TrendChart isTriggered={hasStarted} />
 
             <p style={styles.descriptionText}>
               Забираем максимум звезд на ключевых картах: стабильные 15 на Темном Джео и 36 на Светлом Хоте благодаря дисциплине и точечным приказам офицеров.
