@@ -16,8 +16,6 @@ export interface StickerPeelProps
   curlRadius?: number;
   finish?: StickerFinish;
   backColor?: string;
-  borderColor?: string;
-  borderWidth?: number;
   lightingIntensity?: number;
   shadowIntensity?: number;
   followPointer?: boolean;
@@ -43,8 +41,6 @@ type Settings = {
   curlRadius: number;
   finish: number;
   backColor: string;
-  borderColor: string;
-  borderWidth: number;
   lighting: number;
   shadow: number;
   followPointer: boolean;
@@ -379,8 +375,6 @@ export const StickerPeel = ({
   curlRadius = 12,
   finish = 'gloss',
   backColor = '#d4d4d8',
-  borderColor = '',
-  borderWidth = 0,
   lightingIntensity = 0.5,
   shadowIntensity = 0.6,
   followPointer = true,
@@ -411,8 +405,6 @@ export const StickerPeel = ({
     curlRadius: Math.max(2, curlRadius),
     finish: FINISHES[finish] ?? 0,
     backColor,
-    borderColor,
-    borderWidth: Math.max(0, borderWidth),
     lighting: clamp(lightingIntensity, 0, 1),
     shadow: clamp(shadowIntensity, 0, 1),
     followPointer,
@@ -600,6 +592,14 @@ export const StickerPeel = ({
       const image = new Image();
       image.crossOrigin = 'anonymous';
       image.decoding = 'async';
+      image.onerror = () => {
+        if (!alive) return;
+        if (src.includes('crystal.png')) {
+          load('/Crystal.png');
+        } else if (src.includes('Crystal.png')) {
+          load('/crystal.png');
+        }
+      };
       image.onload = () => {
         if (!alive || loadedSrc !== src || !scratchContext) return;
         const iw = image.naturalWidth || 1;
@@ -612,29 +612,6 @@ export const StickerPeel = ({
         scratch.width = w + padX * 2;
         scratch.height = h + padY * 2;
         scratchContext.clearRect(0, 0, scratch.width, scratch.height);
-
-        const bWidth = settingsRef.current.borderWidth;
-        const bColor = settingsRef.current.borderColor;
-        if (bWidth > 0 && bColor) {
-          const off = document.createElement('canvas');
-          off.width = w;
-          off.height = h;
-          const offCtx = off.getContext('2d');
-          if (offCtx) {
-            offCtx.drawImage(image, 0, 0, w, h);
-            offCtx.globalCompositeOperation = 'source-in';
-            offCtx.fillStyle = bColor;
-            offCtx.fillRect(0, 0, w, h);
-            const steps = Math.max(12, Math.round(bWidth * 5));
-            for (let i = 0; i < steps; i++) {
-              const a = (i / steps) * Math.PI * 2;
-              const ox = Math.round(Math.cos(a) * bWidth);
-              const oy = Math.round(Math.sin(a) * bWidth);
-              scratchContext.drawImage(off, padX + ox, padY + oy);
-            }
-          }
-        }
-
         scratchContext.drawImage(image, padX, padY, w, h);
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
@@ -654,7 +631,7 @@ export const StickerPeel = ({
         scratch.width = maskW;
         scratch.height = maskH;
         scratchContext.clearRect(0, 0, maskW, maskH);
-        scratchContext.drawImage(scratch, 0, 0, maskW, maskH);
+        scratchContext.drawImage(image, 0, 0, maskW, maskH);
         const pixels = scratchContext.getImageData(0, 0, maskW, maskH).data;
         const mask = new Uint8Array(maskW * maskH).fill(255);
         const queue: number[] = [];
