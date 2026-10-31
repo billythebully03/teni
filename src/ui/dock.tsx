@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 
 export interface DockSection {
   id: string;
@@ -30,6 +30,9 @@ const calculateFill = (segIndex: number, currentProgress: number): number => {
   return ((currentProgress - segStart) / (segEnd - segStart)) * 100;
 };
 
+const easeInOutCubic = (t: number): number =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
 const styles: Record<string, CSSProperties> = {
   dockContainer: {
     position: 'fixed',
@@ -52,11 +55,12 @@ const styles: Record<string, CSSProperties> = {
   },
   itemButton: {
     background: 'transparent',
+    backgroundColor: 'transparent',
     border: 'none',
     outline: 'none',
+    boxShadow: 'none',
     cursor: 'pointer',
     padding: '0.35rem 0.55rem',
-    position: 'relative',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -66,38 +70,12 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1,
     letterSpacing: '-0.015em',
   },
-  textBase: {
-    color: 'rgba(255, 255, 255, 0.32)',
-    transition: 'color 0.25s ease',
-  },
-  textFill: {
-    position: 'absolute',
-    inset: '0.35rem 0.55rem',
-    color: '#ffffff',
-    whiteSpace: 'nowrap',
-    pointerEvents: 'none',
-    userSelect: 'none',
-    transition: 'clip-path 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-  },
-  arrowWrapper: {
-    position: 'relative',
-    width: '16px',
-    height: '10px',
+  arrowSvg: {
+    display: 'block',
     flexShrink: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  arrowBase: {
-    position: 'absolute',
-    inset: 0,
-    display: 'block',
-  },
-  arrowFill: {
-    position: 'absolute',
-    inset: 0,
-    display: 'block',
-    transition: 'clip-path 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+    overflow: 'visible',
+    background: 'none',
+    backgroundColor: 'transparent',
   },
 };
 
@@ -105,10 +83,52 @@ export const Dock = ({ currentSectionId = 'about', progress, onSelectSection, st
   const currentIndex = SECTIONS.findIndex((s) => s.id === currentSectionId);
   const activeIdx = currentIndex === -1 ? 0 : currentIndex;
 
-  const effectiveProgress =
+  const targetProgress =
     typeof progress === 'number'
       ? Math.max(0, Math.min(1, progress))
       : (activeIdx * 2 + 1) / TOTAL_SEGMENTS;
+
+  const [displayProgress, setDisplayProgress] = useState(targetProgress);
+  const progressRef = useRef(targetProgress);
+  const animFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const startVal = progressRef.current;
+    const endVal = targetProgress;
+    if (Math.abs(startVal - endVal) < 0.001) return;
+
+    const startTime = performance.now();
+    const duration = Math.max(280, Math.min(650, Math.abs(endVal - startVal) * 850));
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progressRatio = Math.min(1, elapsed / duration);
+      const eased = easeInOutCubic(progressRatio);
+      const currentVal = startVal + (endVal - startVal) * eased;
+
+      progressRef.current = currentVal;
+      setDisplayProgress(currentVal);
+
+      if (progressRatio < 1) {
+        animFrameRef.current = requestAnimationFrame(step);
+      } else {
+        progressRef.current = endVal;
+        setDisplayProgress(endVal);
+        animFrameRef.current = null;
+      }
+    };
+
+    if (animFrameRef.current !== null) {
+      cancelAnimationFrame(animFrameRef.current);
+    }
+    animFrameRef.current = requestAnimationFrame(step);
+
+    return () => {
+      if (animFrameRef.current !== null) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
+    };
+  }, [targetProgress]);
 
   return (
     <nav style={{ ...styles.dockContainer, ...style }} aria-label="Навигация разделов">
@@ -116,8 +136,9 @@ export const Dock = ({ currentSectionId = 'about', progress, onSelectSection, st
         const itemSegIndex = index * 2;
         const arrowSegIndex = index * 2 + 1;
 
-        const itemFill = calculateFill(itemSegIndex, effectiveProgress);
-        const arrowFill = index < SECTIONS.length - 1 ? calculateFill(arrowSegIndex, effectiveProgress) : 0;
+        const itemFill = calculateFill(itemSegIndex, displayProgress);
+        const arrowFill = index < SECTIONS.length - 1 ? calculateFill(arrowSegIndex, displayProgress) : 0;
+        const gradId = `dock-arrow-grad-${index}`;
 
         return (
           <div key={section.id} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
@@ -126,12 +147,12 @@ export const Dock = ({ currentSectionId = 'about', progress, onSelectSection, st
               onClick={() => onSelectSection?.(section.id)}
               style={styles.itemButton}
             >
-              <span style={styles.textBase}>{section.label}</span>
               <span
-                aria-hidden="true"
                 style={{
-                  ...styles.textFill,
-                  clipPath: `inset(0 ${100 - itemFill}% 0 0)`,
+                  backgroundImage: `linear-gradient(to right, #ffffff ${itemFill}%, rgba(255, 255, 255, 0.32) ${itemFill}%)`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  display: 'inline-block',
                 }}
               >
                 {section.label}
@@ -139,51 +160,29 @@ export const Dock = ({ currentSectionId = 'about', progress, onSelectSection, st
             </button>
 
             {index < SECTIONS.length - 1 && (
-              <div style={styles.arrowWrapper} aria-hidden="true">
-                <svg
-                  width="16"
-                  height="10"
-                  viewBox="0 0 16 10"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style={styles.arrowBase}
-                >
-                  <path
-                    d="M1 5H14M14 5L9.5 1M14 5L9.5 9"
-                    stroke="rgba(255, 255, 255, 0.22)"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-
-                <div
-                  style={{
-                    ...styles.arrowFill,
-                    clipPath: `inset(0 ${100 - arrowFill}% 0 0)`,
-                  }}
-                >
-                  <svg
-                    width="16"
-                    height="10"
-                    viewBox="0 0 16 10"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    style={{
-                      display: 'block',
-                      filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.6))',
-                    }}
-                  >
-                    <path
-                      d="M1 5H14M14 5L9.5 1M14 5L9.5 9"
-                      stroke="#ffffff"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
+              <svg
+                width="16"
+                height="10"
+                viewBox="0 0 16 10"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={styles.arrowSvg}
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset={`${arrowFill}%`} stopColor="#ffffff" />
+                    <stop offset={`${arrowFill}%`} stopColor="rgba(255, 255, 255, 0.22)" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M1 5H14M14 5L9.5 1M14 5L9.5 9"
+                  stroke={`url(#${gradId})`}
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             )}
           </div>
         );
