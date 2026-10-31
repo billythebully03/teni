@@ -1,60 +1,57 @@
 import { useEffect, type CSSProperties } from 'react';
-import { Lanyard } from './ui/lanyard';
+import LightRays from './ui/LightRays';
 
 const styles = {
   pageWrapper: {
     width: '100%',
     minHeight: '100dvh',
-    backgroundColor: '#070709',
+    backgroundColor: '#000000',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
   } satisfies CSSProperties,
   heroSection: {
     position: 'relative',
     width: '100%',
     height: '100dvh',
-    minHeight: '640px',
-    overflow: 'hidden',
+    minHeight: '620px',
+    backgroundColor: '#000000',
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
-    backgroundImage: `
-      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 40%, rgba(7, 7, 9, 0) 75%),
-      radial-gradient(ellipse 30% 25% at 50% 10%, rgba(255, 255, 255, 0.1) 0%, rgba(7, 7, 9, 0) 100%)
-    `,
+    justifyContent: 'center',
+    overflow: 'hidden',
   } satisfies CSSProperties,
-  headerGroup: {
+  lightLayer: {
     position: 'absolute',
-    top: 'clamp(2.5rem, 6vh, 4.5rem)',
+    inset: 0,
+    zIndex: 1,
+    pointerEvents: 'none',
+  } satisfies CSSProperties,
+  contentBlock: {
+    position: 'relative',
     zIndex: 2,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
     textAlign: 'center',
     padding: '0 1.5rem',
     gap: '0.45rem',
     pointerEvents: 'none',
     userSelect: 'none',
   } satisfies CSSProperties,
-  title: {
+  primaryText: {
     color: '#ffffff',
-    fontSize: 'clamp(1.35rem, 2.4vw, 2.25rem)',
-    fontWeight: 700,
-    lineHeight: 1.15,
-    letterSpacing: '-0.025em',
+    fontSize: 'clamp(1.1rem, 1.8vw, 1.5rem)',
+    fontWeight: 600,
+    lineHeight: 1.25,
+    letterSpacing: '-0.015em',
   } satisfies CSSProperties,
-  subtitle: {
-    color: '#94a3b8',
-    fontSize: 'clamp(1.35rem, 2.4vw, 2.25rem)',
-    fontWeight: 700,
-    lineHeight: 1.15,
-    letterSpacing: '-0.025em',
-  } satisfies CSSProperties,
-  canvasContainer: {
-    position: 'absolute',
-    inset: 0,
-    zIndex: 1,
+  secondaryText: {
+    color: '#8e8e93',
+    fontSize: 'clamp(1.1rem, 1.8vw, 1.5rem)',
+    fontWeight: 600,
+    lineHeight: 1.25,
+    letterSpacing: '-0.015em',
   } satisfies CSSProperties,
 };
 
@@ -69,25 +66,37 @@ export const App = () => {
   return (
     <div style={styles.pageWrapper}>
       <header style={styles.heroSection}>
-        <div style={styles.headerGroup}>
-          <h1 style={styles.title}>Те, кто в тени</h1>
-          <p style={styles.subtitle}>Активно выходят в свет</p>
+        <div style={styles.lightLayer}>
+          <LightRays
+            raysOrigin="top-center"
+            raysColor="#ffffff"
+            raysSpeed={1}
+            lightSpread={0.5}
+            rayLength={3}
+            glow={0.6}
+            haze={0.25}
+            followMouse
+            mouseInfluence={0.1}
+            rayDensity={1}
+            tilt={0}
+            raySharpness={0.35}
+            atmosphere={1}
+            intensity={1}
+            fadeDistance={1}
+            saturation={1}
+            noiseAmount={0}
+            distortion={0}
+            pulsating={false}
+            cursorShadow
+            clickPulse
+            intro
+            lightMode={false}
+          />
         </div>
 
-        <div style={styles.canvasContainer}>
-          <Lanyard
-            cardColor="#8a8f99"
-            finish="metallic"
-            metal="silver"
-            anchor="center"
-            size={0.38}
-            strapColor="#0a0a0c"
-            strapLength={0.48}
-            elasticity={0.18}
-            damping={0.6}
-            intro={true}
-            interactive={true}
-          />
+        <div style={styles.contentBlock}>
+          <h1 style={styles.primaryText}>Те, кто в тени</h1>
+          <p style={styles.secondaryText}>Активно выходят в свет</p>
         </div>
       </header>
     </div>
