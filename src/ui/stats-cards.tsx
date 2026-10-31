@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import StickerPeel from './StickerPeel';
 
 export interface StatsCardsProps {
   isTriggered: boolean;
   style?: CSSProperties;
 }
+
+const STICKER_POOL = ['/credit.png', '/dzeta.png', '/conquer.png'];
 
 const DIGITS = [0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
 
@@ -333,14 +336,7 @@ const styles: Record<string, CSSProperties> = {
     maxWidth: '1240px',
     margin: 'auto',
     userSelect: 'none',
-  },
-  sectionHeading: {
-    color: '#0f172a',
-    fontSize: 'clamp(2.1rem, 3.4vw, 2.85rem)',
-    fontWeight: 400,
-    letterSpacing: '-0.025em',
-    marginBottom: 'clamp(2.5rem, 5vh, 4rem)',
-    textAlign: 'center',
+    zIndex: 2,
   },
   statsRow: {
     display: 'grid',
@@ -407,6 +403,34 @@ const styles: Record<string, CSSProperties> = {
 export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
   const [hasStarted, setHasStarted] = useState(false);
 
+  const [selectedStickers] = useState(() => {
+    const pool = [...STICKER_POOL];
+    const idx1 = Math.floor(Math.random() * pool.length);
+    const first = pool.splice(idx1, 1)[0];
+    const idx2 = Math.floor(Math.random() * pool.length);
+    const second = pool[idx2];
+    return [first, second];
+  });
+
+  const [positions, setPositions] = useState({
+    topLeft: { x: -360, y: -200 },
+    bottomRight: { x: 360, y: 200 },
+  });
+
+  useEffect(() => {
+    const updatePositions = () => {
+      const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
+      const offsetX = Math.max(140, Math.min(460, w * 0.36));
+      setPositions({
+        topLeft: { x: -offsetX, y: -200 },
+        bottomRight: { x: offsetX, y: 200 },
+      });
+    };
+    updatePositions();
+    window.addEventListener('resize', updatePositions);
+    return () => window.removeEventListener('resize', updatePositions);
+  }, []);
+
   useEffect(() => {
     if (isTriggered && !hasStarted) {
       setHasStarted(true);
@@ -415,9 +439,39 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
 
   return (
     <div style={styles.whitePanel}>
-      <div style={{ ...styles.sectionWrapper, ...style }}>
-        <h2 style={styles.sectionHeading}>Все-все Циферки</h2>
+      <StickerPeel
+        imageSrc={selectedStickers[0]}
+        width={150}
+        rotate={-12}
+        peelDirection={40}
+        peelBackHoverPct={28}
+        peelBackActivePct={42}
+        curlRadius={14}
+        finish="gloss"
+        backColor="#e4e4e7"
+        initialPosition={positions.topLeft}
+        draggable
+        followPointer
+        intro
+      />
 
+      <StickerPeel
+        imageSrc={selectedStickers[1]}
+        width={150}
+        rotate={10}
+        peelDirection={-140}
+        peelBackHoverPct={28}
+        peelBackActivePct={42}
+        curlRadius={14}
+        finish="gloss"
+        backColor="#e4e4e7"
+        initialPosition={positions.bottomRight}
+        draggable
+        followPointer
+        intro
+      />
+
+      <div style={{ ...styles.sectionWrapper, ...style }}>
         <div style={styles.statsRow}>
           <div style={styles.statColumn}>
             <div style={styles.headerRow}>
