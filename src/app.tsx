@@ -7,12 +7,16 @@ const styles: Record<string, CSSProperties> = {
     width: '100%',
     minHeight: '100dvh',
     backgroundColor: '#000000',
-    display: 'flex',
-    flexDirection: 'column',
     fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   },
-  heroSection: {
+  scrollTrack: {
     position: 'relative',
+    width: '100%',
+    height: '240vh',
+  },
+  stickyViewport: {
+    position: 'sticky',
+    top: 0,
     width: '100%',
     height: '100dvh',
     minHeight: '620px',
@@ -37,9 +41,10 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: 'center',
     textAlign: 'center',
     padding: '0 1.5rem',
-    gap: '0.35rem',
+    gap: '0.45rem',
     pointerEvents: 'none',
     userSelect: 'none',
+    transition: 'transform 0.1s ease-out',
   },
   headlineText: {
     color: '#ffffff',
@@ -48,17 +53,43 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1.25,
     letterSpacing: '-0.02em',
   },
+  narrativeDescription: {
+    marginTop: 'clamp(0.85rem, 1.8vh, 1.35rem)',
+    maxWidth: 'clamp(320px, 46vw, 560px)',
+    color: '#b0b0b8',
+    fontSize: 'clamp(0.92rem, 1.2vw, 1.05rem)',
+    fontWeight: 400,
+    lineHeight: 1.55,
+    letterSpacing: '-0.01em',
+    willChange: 'filter, opacity, transform',
+    transition: 'opacity 0.15s ease-out, filter 0.15s ease-out, transform 0.15s ease-out',
+  },
 };
 
 export const App = () => {
   const [activeSection, setActiveSection] = useState('about');
+  const [stageProgress, setStageProgress] = useState(0);
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
+
+    const onScroll = () => {
+      const scrollMax = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const ratio = Math.min(1, Math.max(0, window.scrollY / scrollMax));
+      setStageProgress(ratio);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  const titleShiftY = -stageProgress * 32;
+  const descOpacity = Math.min(1, Math.max(0, (stageProgress - 0.08) / 0.55));
+  const descBlur = (1 - descOpacity) * 14;
+  const descShiftY = (1 - descOpacity) * 18;
 
   return (
     <div style={styles.pageWrapper}>
@@ -67,40 +98,58 @@ export const App = () => {
         onSelectSection={(id) => setActiveSection(id)}
       />
 
-      <header style={styles.heroSection}>
-        <div style={styles.lightLayer}>
-          <LightRays
-            raysOrigin="top-center"
-            raysColor="#ffffff"
-            raysSpeed={1}
-            lightSpread={0.5}
-            rayLength={3}
-            glow={0.6}
-            haze={0.25}
-            followMouse
-            mouseInfluence={0.1}
-            rayDensity={1}
-            tilt={0}
-            raySharpness={0.35}
-            atmosphere={1}
-            intensity={1}
-            fadeDistance={1}
-            saturation={1}
-            noiseAmount={0}
-            distortion={0}
-            pulsating={false}
-            cursorShadow
-            clickPulse
-            intro
-            lightMode={false}
-          />
-        </div>
+      <div style={styles.scrollTrack}>
+        <div style={styles.stickyViewport}>
+          <div style={styles.lightLayer}>
+            <LightRays
+              raysOrigin="top-center"
+              raysColor="#ffffff"
+              raysSpeed={1}
+              lightSpread={0.5}
+              rayLength={3}
+              glow={0.6}
+              haze={0.25}
+              followMouse
+              mouseInfluence={0.1}
+              rayDensity={1}
+              tilt={0}
+              raySharpness={0.35}
+              atmosphere={1}
+              intensity={1}
+              fadeDistance={1}
+              saturation={1}
+              noiseAmount={0}
+              distortion={0}
+              pulsating={false}
+              cursorShadow
+              clickPulse
+              intro
+              lightMode={false}
+            />
+          </div>
 
-        <div style={styles.contentBlock}>
-          <h1 style={styles.headlineText}>Те, кто в тени</h1>
-          <p style={styles.headlineText}>Активно выходят в свет</p>
+          <div
+            style={{
+              ...styles.contentBlock,
+              transform: `translateY(${titleShiftY}px)`,
+            }}
+          >
+            <h1 style={styles.headlineText}>Те, кто в тени</h1>
+            <p style={styles.headlineText}>Активно выходят в свет</p>
+
+            <p
+              style={{
+                ...styles.narrativeDescription,
+                opacity: descOpacity,
+                filter: `blur(${descBlur}px)`,
+                transform: `translateY(${descShiftY}px)`,
+              }}
+            >
+              Лайтовая гильдия без душных рамок и обязаловок. Держим высокую планку в своем сегменте, ценим скилл, чувство юмора и свободу каждого. Основаны 05.09.2025.
+            </p>
+          </div>
         </div>
-      </header>
+      </div>
     </div>
   );
 };
