@@ -43,7 +43,7 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: 'center',
     textAlign: 'center',
     padding: '0 1.5rem',
-    gap: '0.45rem',
+    gap: '0.35rem',
     pointerEvents: 'none',
     userSelect: 'none',
     willChange: 'transform',
@@ -55,21 +55,25 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1.25,
     letterSpacing: '-0.02em',
   },
-  narrativeContainer: {
-    marginTop: 'clamp(1.2rem, 2.4vh, 1.8rem)',
-    maxWidth: 'clamp(340px, 50vw, 660px)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.9rem',
+  narrativeWrapper: {
+    position: 'absolute',
+    top: 'calc(100% + 1.25rem)',
+    left: '50%',
+    width: 'max-content',
+    maxWidth: 'clamp(320px, 46vw, 620px)',
+    pointerEvents: 'none',
+    userSelect: 'none',
     willChange: 'filter, opacity, transform',
-    transition: 'opacity 0.15s ease-out, filter 0.15s ease-out, transform 0.15s ease-out',
   },
-  narrativeParagraph: {
+  narrativeText: {
+    margin: 0,
+    padding: 0,
     color: '#b2b2ba',
     fontSize: 'clamp(0.92rem, 1.15vw, 1.05rem)',
     fontWeight: 400,
     lineHeight: 1.6,
     letterSpacing: '-0.01em',
+    textAlign: 'center',
   },
 };
 
@@ -83,20 +87,28 @@ export const App = () => {
     }
     window.scrollTo(0, 0);
 
+    let frameId: number | null = null;
     const onScroll = () => {
-      const scrollMax = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const ratio = Math.min(1, Math.max(0, window.scrollY / scrollMax));
-      setStageProgress(ratio);
+      if (frameId !== null) return;
+      frameId = requestAnimationFrame(() => {
+        const scrollMax = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        const ratio = Math.min(1, Math.max(0, window.scrollY / scrollMax));
+        setStageProgress(ratio);
+        frameId = null;
+      });
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frameId !== null) cancelAnimationFrame(frameId);
+    };
   }, []);
 
-  const titleShiftY = -stageProgress * 36;
-  const descOpacity = Math.min(1, Math.max(0, (stageProgress - 0.05) / 0.5));
+  const titleShiftY = -stageProgress * 42;
+  const descOpacity = Math.min(1, Math.max(0, (stageProgress - 0.04) / 0.45));
   const descBlur = (1 - descOpacity) * 14;
-  const descShiftY = (1 - descOpacity) * 20;
+  const descShiftY = (1 - descOpacity) * 18;
 
   const dockProgress =
     activeSection === 'about'
@@ -152,20 +164,14 @@ export const App = () => {
 
             <div
               style={{
-                ...styles.narrativeContainer,
+                ...styles.narrativeWrapper,
                 opacity: descOpacity,
                 filter: `blur(${descBlur}px)`,
-                transform: `translateY(${descShiftY}px)`,
+                transform: `translate(-50%, ${descShiftY}px)`,
               }}
             >
-              <p style={styles.narrativeParagraph}>
-                Мы — быстрорастущая лайтовая гильдия без душных обязаловок и загона участников в рамки, ведь сами терпеть это не можем! Вместо этого подход к требованиям у нас трижды прекрасен! Мы просим качать только обязательных для роста гильдии персонажей, 90% из которых хорошо поднимут твой склад и гм, а те 10%, которые этого не сделают — вовсе не сложные. Да-да, балбесик, у нас тут двусторонняя лояльность, а как же еще?
-              </p>
-              <p style={styles.narrativeParagraph}>
-                А еще наши крутые ребятки-офицеры помогут с любым вопросом и проследят, чтобы ты кайфовал от пребывания в нашей общине!
-              </p>
-              <p style={styles.narrativeParagraph}>
-                Проще говоря, мы не только держим высокую планку в своем сегменте, но и ценим душевность и уважаем твою свободу.
+              <p style={styles.narrativeText}>
+                Мы — быстрорастущая лайтовая гильдия без душных рамок и обязаловок, ведь сами это терпеть не можем. Качаем только ключевых персонажей: 90% из них отлично усилят твой склад и гм, а остальные вовсе не сложные. Двусторонняя лояльность, балбесик, а как иначе? Крутые офицеры всегда подскажут и прикроют, чтобы ты кайфовал от игры. Держим высокую планку, но ценим душевность и уважаем твою свободу.
               </p>
             </div>
           </div>
