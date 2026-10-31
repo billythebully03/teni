@@ -195,10 +195,6 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                 <stop offset="70%" stopColor={RED_ACCENT} stopOpacity="0.04" />
                 <stop offset="100%" stopColor={RED_ACCENT} stopOpacity="0.0" />
               </linearGradient>
-
-              <filter id="pointRedGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor={RED_ACCENT} floodOpacity="0.35" />
-              </filter>
             </defs>
 
             <line x1="24" y1="30" x2="316" y2="30" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
@@ -256,7 +252,6 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                     strokeDasharray="3 3"
                     strokeOpacity="0.75"
                   />
-                  <circle cx={cursorPos.x} cy={cursorPos.y} r="8" fill={RED_ACCENT} fillOpacity="0.18" />
                   <circle cx={cursorPos.x} cy={cursorPos.y} r="3.5" fill={RED_ACCENT} />
                 </>
               )}
@@ -270,22 +265,8 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                   <circle
                     cx={pt.x}
                     cy={pt.y}
-                    r="6.5"
+                    r="4"
                     fill={RED_ACCENT}
-                    fillOpacity="0.14"
-                    style={{
-                      transform: active ? 'scale(1)' : 'scale(0)',
-                      transformOrigin: `${pt.x}px ${pt.y}px`,
-                      transition: `transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
-                    }}
-                  />
-
-                  <circle
-                    cx={pt.x}
-                    cy={pt.y}
-                    r="3.5"
-                    fill={RED_ACCENT}
-                    filter="url(#pointRedGlow)"
                     style={{
                       transform: active ? 'scale(1)' : 'scale(0)',
                       transformOrigin: `${pt.x}px ${pt.y}px`,
@@ -298,7 +279,7 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                     y={pt.y - 12}
                     textAnchor="middle"
                     fill={RED_ACCENT}
-                    fontSize="12"
+                    fontSize="12.5"
                     fontWeight="700"
                     style={{
                       opacity: active ? 1 : 0,
@@ -330,14 +311,12 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
 
 const RunningTicker = ({
   text,
-  direction = 'right',
-  speedSeconds = 36,
+  speedSeconds = 48,
 }: {
   text: string;
-  direction?: 'left' | 'right';
   speedSeconds?: number;
 }) => {
-  const content = `${text}  ·  ${text}  ·  ${text}  ·  ${text}  ·  `;
+  const content = `${text}  ·  ${text}  ·  `;
 
   return (
     <div
@@ -347,14 +326,15 @@ const RunningTicker = ({
         whiteSpace: 'nowrap',
         display: 'flex',
         userSelect: 'none',
-        padding: '0.85rem 0',
+        padding: '0.9rem 0',
+        backgroundColor: '#ffffff',
       }}
     >
       <div
         style={{
           display: 'flex',
           width: 'max-content',
-          animation: `${direction === 'left' ? 'tickerScrollLeft' : 'tickerScrollRight'} ${speedSeconds}s linear infinite`,
+          animation: `tickerScrollRight ${speedSeconds}s linear infinite`,
           willChange: 'transform',
         }}
       >
@@ -364,7 +344,7 @@ const RunningTicker = ({
             fontWeight: 500,
             color: '#8392a5',
             letterSpacing: '0.01em',
-            paddingRight: '1rem',
+            paddingRight: '1.5rem',
           }}
         >
           {content}
@@ -376,7 +356,7 @@ const RunningTicker = ({
             fontWeight: 500,
             color: '#8392a5',
             letterSpacing: '0.01em',
-            paddingRight: '1rem',
+            paddingRight: '1.5rem',
           }}
         >
           {content}
@@ -405,9 +385,11 @@ const styles: Record<string, CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
     width: '100%',
     maxWidth: '1240px',
-    padding: 'clamp(5.5rem, 10vh, 7.5rem) 2rem clamp(3rem, 5vh, 4rem) 2rem',
+    padding: 'clamp(4rem, 7vh, 6rem) 2rem',
+    margin: 'auto',
     userSelect: 'none',
   },
   sectionHeading: {
@@ -415,7 +397,7 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 'clamp(2.1rem, 3.4vw, 2.85rem)',
     fontWeight: 400,
     letterSpacing: '-0.025em',
-    marginBottom: 'clamp(3rem, 6vh, 4.5rem)',
+    marginBottom: 'clamp(2.5rem, 5vh, 4rem)',
     textAlign: 'center',
   },
   statsRow: {
@@ -433,7 +415,7 @@ const styles: Record<string, CSSProperties> = {
   headerRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.55rem',
+    gap: '0.65rem',
   },
   headerTitle: {
     color: '#0f172a',
@@ -492,10 +474,6 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
   return (
     <div style={styles.whitePanel}>
       <style>{`
-        @keyframes tickerScrollLeft {
-          0% { transform: translate3d(0, 0, 0); }
-          100% { transform: translate3d(-50%, 0, 0); }
-        }
         @keyframes tickerScrollRight {
           0% { transform: translate3d(-50%, 0, 0); }
           100% { transform: translate3d(0, 0, 0); }
@@ -517,11 +495,8 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
                 aria-hidden="true"
               >
                 <path
-                  d="M13 2L3 14H12L11 22L21 10H12L13 2Z"
-                  stroke="#0f172a"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  d="M12 1L3 5.5V12.5C3 18.2 6.9 21.8 12 23C17.1 21.8 21 18.2 21 12.5V5.5L12 1ZM13 13.5H16.5L11 20V14.5H7.5L13 4V13.5Z"
+                  fill="#0f172a"
                 />
               </svg>
               <span style={styles.headerTitle}>Наша мощь</span>
@@ -550,11 +525,16 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
                 aria-hidden="true"
               >
                 <path
-                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-                  stroke="#0f172a"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  d="M12 1.5L6.5 10L10 21.5H14L17.5 10L12 1.5Z"
+                  fill="#0f172a"
+                />
+                <path
+                  d="M4.5 11.5L2 14.5L4.5 20.5H7.5L5.5 13.5L4.5 11.5Z"
+                  fill="#0f172a"
+                />
+                <path
+                  d="M19.5 11.5L22 14.5L19.5 20.5H16.5L18.5 13.5L19.5 11.5Z"
+                  fill="#0f172a"
                 />
               </svg>
               <span style={styles.headerTitle}>Что по фарму</span>
@@ -583,12 +563,10 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
                 aria-hidden="true"
               >
                 <path
-                  d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-                  stroke="#0f172a"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  d="M12 1L14.8 9.2L23 12L14.8 14.8L12 23L9.2 14.8L1 12L9.2 9.2L12 1Z"
+                  fill="#0f172a"
                 />
+                <circle cx="19.5" cy="4.5" r="2.2" fill="#0f172a" />
               </svg>
               <span style={styles.headerTitle}>Звёзды за ВИ</span>
             </div>
@@ -603,9 +581,8 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
       </div>
 
       <RunningTicker
-        text="Лишь за последний месяц мы прибавили больше 25 млн. гм"
-        direction="right"
-        speedSeconds={36}
+        text="Цифры обновляются раз в неделю, так что данные могут немножко отставать от реальных  ·  Лишь за последний месяц мы прибавили больше 25 млн. гм"
+        speedSeconds={44}
       />
     </div>
   );
