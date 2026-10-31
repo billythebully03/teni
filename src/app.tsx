@@ -46,7 +46,7 @@ const styles: Record<string, CSSProperties> = {
     padding: '0 1.5rem',
     pointerEvents: 'none',
     userSelect: 'none',
-    willChange: 'transform, opacity',
+    willChange: 'transform',
   },
   headlineText: {
     color: '#ffffff',
@@ -74,7 +74,7 @@ const styles: Record<string, CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    willChange: 'transform, opacity',
+    willChange: 'transform',
   },
 };
 
@@ -106,19 +106,20 @@ export const App = () => {
     };
   }, []);
 
-  const aboutReveal = Math.min(1, Math.max(0, scrollRatio / 0.22));
-  const aboutShiftY = (1 - aboutReveal) * 58;
-  const descOpacity = Math.min(1, Math.max(0, (aboutReveal - 0.15) / 0.8));
+  const aboutReveal = Math.min(1, Math.max(0, scrollRatio / 0.18));
+  const aboutCenterOffset = (1 - aboutReveal) * 58;
+  const descOpacity = Math.min(1, Math.max(0, (aboutReveal - 0.15) / 0.85));
   const descBlur = (1 - descOpacity) * 14;
 
-  const aboutExitProgress = Math.min(1, Math.max(0, (scrollRatio - 0.36) / 0.12));
-  const aboutStageOpacity = 1 - aboutExitProgress;
-  const aboutStageY = -aboutExitProgress * 64;
+  const scrollTransition = Math.min(1, Math.max(0, (scrollRatio - 0.3) / 0.18));
 
-  const statsEnterProgress = Math.min(1, Math.max(0, (scrollRatio - 0.36) / 0.14));
-  const statsStageOpacity = statsEnterProgress;
-  const statsStageY = (1 - statsEnterProgress) * 90;
+  const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+  const naturalScrollUpDistance = viewportHeight * 1.05;
 
+  const aboutStageY = aboutCenterOffset - scrollTransition * naturalScrollUpDistance;
+  const statsStageY = (1 - scrollTransition) * naturalScrollUpDistance;
+
+  const statsArrived = scrollTransition >= 0.98;
   const statsActive = scrollRatio >= 0.44;
 
   let activeCardIndex = 0;
@@ -139,19 +140,19 @@ export const App = () => {
   }
 
   useEffect(() => {
-    if (scrollRatio >= 0.44 && activeSection !== 'stats') {
+    if (scrollRatio >= 0.45 && activeSection !== 'stats') {
       setActiveSection('stats');
-    } else if (scrollRatio < 0.44 && activeSection !== 'about') {
+    } else if (scrollRatio < 0.45 && activeSection !== 'about') {
       setActiveSection('about');
     }
   }, [scrollRatio, activeSection]);
 
   let dockProgress: number;
-  if (scrollRatio < 0.44) {
-    const p = Math.min(1, scrollRatio / 0.36);
+  if (scrollRatio < 0.45) {
+    const p = Math.min(1, scrollRatio / 0.3);
     dockProgress = (1 + p) / TOTAL_SEGMENTS;
   } else {
-    const p = Math.min(1, (scrollRatio - 0.44) / 0.52);
+    const p = Math.min(1, (scrollRatio - 0.45) / 0.5);
     dockProgress = (3 + p) / TOTAL_SEGMENTS;
   }
 
@@ -196,9 +197,8 @@ export const App = () => {
           <div
             style={{
               ...styles.aboutStage,
-              opacity: aboutStageOpacity,
-              transform: `translate3d(0, ${aboutStageY + aboutShiftY}px, 0)`,
-              pointerEvents: aboutStageOpacity > 0.05 ? 'auto' : 'none',
+              transform: `translate3d(0, ${aboutStageY}px, 0)`,
+              pointerEvents: scrollTransition < 0.5 ? 'auto' : 'none',
             }}
           >
             <h1 style={styles.headlineText}>Те, кто в тени</h1>
@@ -211,26 +211,4 @@ export const App = () => {
                 filter: `blur(${descBlur}px)`,
               }}
             >
-              Мы — быстрорастущая лайтовая гильдия без душных рамок и обязаловок, ведь сами это терпеть не можем. Качаем только ключевых персонажей: 90% из них отлично усилят твой склад и гм, а остальные вовсе не сложные. Двусторонняя лояльность, балбесик, а как иначе? Крутые офицеры всегда подскажут и прикроют, чтобы ты кайфовал от игры. Держим высокую планку, но ценим душевность и уважаем твою свободу.
-            </p>
-          </div>
-
-          <div
-            style={{
-              ...styles.statsStage,
-              opacity: statsStageOpacity,
-              transform: `translate3d(0, ${statsStageY}px, 0)`,
-              pointerEvents: statsStageOpacity > 0.1 ? 'auto' : 'none',
-            }}
-          >
-            <StatsCards
-              activeCardIndex={activeCardIndex}
-              highlightIntensity={highlightIntensity}
-              isTriggered={statsActive}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+              Мы — быстрорастущая лайтовая гильдия без душных рамок и обяза
