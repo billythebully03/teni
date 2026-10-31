@@ -27,7 +27,7 @@ const DigitReel = ({
     return () => clearTimeout(timer);
   }, [isTriggered, delayMs]);
 
-  const digitHeight = 44;
+  const digitHeight = 48;
   const targetIndex = DIGITS.lastIndexOf(targetDigit);
   const translateY = active ? -targetIndex * digitHeight : 0;
 
@@ -73,8 +73,8 @@ const styles: Record<string, CSSProperties> = {
     flexDirection: 'column',
     alignItems: 'center',
     width: '100%',
-    maxWidth: '1120px',
-    padding: '0 1.5rem',
+    maxWidth: '1040px',
+    padding: '0 2rem',
     userSelect: 'none',
   },
   sectionHeading: {
@@ -82,41 +82,31 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 'clamp(1.75rem, 2.5vw, 2.25rem)',
     fontWeight: 500,
     letterSpacing: '-0.02em',
-    marginBottom: 'clamp(1.5rem, 2.8vh, 2.2rem)',
+    marginBottom: 'clamp(2rem, 4vh, 3rem)',
     textAlign: 'center',
   },
-  cardsContainer: {
+  statsRow: {
     display: 'flex',
-    alignItems: 'stretch',
+    alignItems: 'flex-start',
     justifyContent: 'center',
-    gap: 'clamp(1rem, 2vw, 1.5rem)',
+    gap: 'clamp(2.5rem, 6vw, 5rem)',
     width: '100%',
   },
-  cardBase: {
-    position: 'relative',
+  statColumn: {
     flex: '1 1 0',
-    minWidth: '240px',
-    maxWidth: '350px',
-    height: 'clamp(390px, 48vh, 460px)',
-    borderRadius: '24px',
-    backgroundColor: '#15151c',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    padding: 'clamp(1.5rem, 2.4vw, 2rem)',
+    maxWidth: '440px',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start',
-    overflow: 'hidden',
-    boxShadow: '0 18px 40px rgba(0, 0, 0, 0.65)',
+    alignItems: 'flex-start',
   },
-  cardHeader: {
+  headerRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.65rem',
-    zIndex: 2,
+    gap: '0.6rem',
   },
-  cardTitle: {
+  headerTitle: {
     color: '#ffffff',
-    fontSize: '1.2rem',
+    fontSize: '1.25rem',
     fontWeight: 400,
     letterSpacing: '-0.015em',
   },
@@ -124,48 +114,34 @@ const styles: Record<string, CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     color: '#ffffff',
-    fontSize: 'clamp(2.2rem, 3.2vw, 2.75rem)',
+    fontSize: 'clamp(2.5rem, 3.8vw, 3.25rem)',
     fontWeight: 700,
     letterSpacing: '-0.03em',
     lineHeight: 1,
-    marginTop: 'clamp(1.2rem, 2vh, 1.6rem)',
-    zIndex: 2,
+    marginTop: 'clamp(1rem, 2vh, 1.4rem)',
   },
-  revaAvatar: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '10px',
-    objectFit: 'cover',
-    marginRight: '0.65rem',
+  revaImage: {
+    width: '44px',
+    height: '44px',
+    objectFit: 'contain',
+    marginRight: '0.55rem',
     flexShrink: 0,
-    border: '1px solid rgba(255, 255, 255, 0.18)',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+    display: 'block',
+    background: 'none',
   },
   counterSuffix: {
-    marginLeft: '0.45rem',
-    fontSize: 'clamp(1rem, 1.4vw, 1.2rem)',
+    marginLeft: '0.5rem',
+    fontSize: 'clamp(1.05rem, 1.5vw, 1.25rem)',
     fontWeight: 500,
     color: 'rgba(255, 255, 255, 0.55)',
     letterSpacing: '-0.01em',
   },
   descriptionText: {
-    marginTop: 'clamp(0.85rem, 1.6vh, 1.15rem)',
-    color: '#9e9ea8',
-    fontSize: '0.92rem',
-    lineHeight: 1.6,
+    marginTop: 'clamp(0.85rem, 1.8vh, 1.25rem)',
+    color: '#a0a0aa',
+    fontSize: 'clamp(0.92rem, 1.15vw, 1rem)',
+    lineHeight: 1.65,
     letterSpacing: '-0.01em',
-    zIndex: 2,
-  },
-  patternOverlay: {
-    position: 'absolute',
-    inset: 0,
-    pointerEvents: 'none',
-    backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.28) 1.2px, transparent 1.2px)',
-    backgroundSize: '10px 10px',
-    WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.95) 100%)',
-    maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.95) 100%)',
-    opacity: 0.85,
-    zIndex: 1,
   },
 };
 
@@ -174,14 +150,12 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
     <div style={{ ...styles.sectionWrapper, ...style }}>
       <h2 style={styles.sectionHeading}>Циферки</h2>
 
-      <div style={styles.cardsContainer}>
-        <div style={styles.cardBase}>
-          <div style={styles.patternOverlay} />
-
-          <div style={styles.cardHeader}>
+      <div style={styles.statsRow}>
+        <div style={styles.statColumn}>
+          <div style={styles.headerRow}>
             <svg
-              width="20"
-              height="20"
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -195,7 +169,7 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
                 strokeLinejoin="round"
               />
             </svg>
-            <span style={styles.cardTitle}>Наша мощь</span>
+            <span style={styles.headerTitle}>Наша мощь</span>
           </div>
 
           <div style={styles.counterRow}>
@@ -210,13 +184,11 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
           </p>
         </div>
 
-        <div style={styles.cardBase}>
-          <div style={styles.patternOverlay} />
-
-          <div style={styles.cardHeader}>
+        <div style={styles.statColumn}>
+          <div style={styles.headerRow}>
             <svg
-              width="20"
-              height="20"
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -230,11 +202,11 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
                 strokeLinejoin="round"
               />
             </svg>
-            <span style={styles.cardTitle}>Что по фарму</span>
+            <span style={styles.headerTitle}>Что по фарму</span>
           </div>
 
           <div style={styles.counterRow}>
-            <img src="/reva.png" alt="Рева" style={styles.revaAvatar} />
+            <img src="/reva.png" alt="Рева" style={styles.revaImage} />
             <DigitReel targetDigit={3} delayMs={150} isTriggered={isTriggered} />
             <DigitReel targetDigit={5} delayMs={300} isTriggered={isTriggered} />
             <span style={styles.counterSuffix}>осколков</span>
@@ -243,16 +215,6 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
           <p style={styles.descriptionText}>
             Меньше чем за год с нуля вышли на стабильный фарм Ревы. За одну ВИ забираем в среднем 35 осколков — четкие офицерские гайды, правильные модули и слаженность состава превращают сложные битвы в понятную рутину.
           </p>
-        </div>
-
-        <div style={styles.cardBase}>
-          <div style={styles.patternOverlay} />
-
-          <div style={{ display: 'flex', flex: 1, alignItems: 'flex-end', zIndex: 2 }}>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.3)' }}>
-              Скоро здесь появится блок
-            </span>
-          </div>
         </div>
       </div>
     </div>
