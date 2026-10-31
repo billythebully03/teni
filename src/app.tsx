@@ -120,23 +120,26 @@ export const App = () => {
   const statsStageY = (1 - scrollTransition) * naturalScrollUpDistance;
 
   const statsArrived = scrollTransition >= 0.98;
-  const statsActive = scrollRatio >= 0.44;
+  const statsActive = scrollRatio >= 0.38;
 
   let activeCardIndex = 0;
   let highlightIntensity = 0;
 
-  if (scrollRatio >= 0.5 && scrollRatio < 0.65) {
+  if (scrollRatio >= 0.35 && scrollRatio < 0.6) {
     activeCardIndex = 0;
-    const t = (scrollRatio - 0.5) / 0.15;
-    highlightIntensity = t < 0.7 ? t / 0.7 : (1 - t) / 0.3;
-  } else if (scrollRatio >= 0.65 && scrollRatio < 0.8) {
+    if (scrollRatio < 0.5) {
+      highlightIntensity = 1;
+    } else {
+      highlightIntensity = 1 - (scrollRatio - 0.5) / 0.1;
+    }
+  } else if (scrollRatio >= 0.6 && scrollRatio < 0.78) {
     activeCardIndex = 1;
-    const t = (scrollRatio - 0.65) / 0.15;
-    highlightIntensity = t < 0.7 ? t / 0.7 : (1 - t) / 0.3;
-  } else if (scrollRatio >= 0.8 && scrollRatio <= 0.95) {
+    const t = (scrollRatio - 0.6) / 0.18;
+    highlightIntensity = t < 0.6 ? t / 0.6 : (1 - t) / 0.4;
+  } else if (scrollRatio >= 0.78 && scrollRatio <= 0.95) {
     activeCardIndex = 2;
-    const t = (scrollRatio - 0.8) / 0.15;
-    highlightIntensity = t < 0.7 ? t / 0.7 : (1 - t) / 0.3;
+    const t = (scrollRatio - 0.78) / 0.17;
+    highlightIntensity = t < 0.6 ? t / 0.6 : (1 - t) / 0.4;
   }
 
   useEffect(() => {
