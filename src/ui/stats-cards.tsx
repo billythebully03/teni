@@ -575,4 +575,39 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
             </div>
 
             <p style={styles.descriptionText}>
-              Меньше чем за год с нуля вышли на стабильный фарм Ревы. За одну ВИ забираем в среднем 35 осколков — четкие офицерские гайды, правильные мод
+              Меньше чем за год с нуля вышли на стабильный фарм Ревы. За одну ВИ забираем в среднем 35 осколков — четкие офицерские гайды, правильные модули и слаженность состава превращают сложные битвы в понятную рутину.
+            </p>
+          </div>
+
+          <div style={styles.statColumn}>
+            <div style={styles.headerRow}>
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 1L14.8 9.2L23 12L14.8 14.8L12 23L9.2 14.8L1 12L9.2 9.2L12 1Z"
+                  fill="#0f172a"
+                />
+                <circle cx="19.5" cy="4.5" r="2.2" fill="#0f172a" />
+              </svg>
+              <span style={styles.headerTitle}>Звёзды за ВИ</span>
+            </div>
+
+            <PleasantRedTrendChart isTriggered={hasStarted} />
+
+            <p style={styles.descriptionText}>
+              Забираем максимум звезд на ключевых картах: стабильные 15 на Темном Джео и 36 на Светлом Хоте благодаря дисциплине и точечным приказам офицеров.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StatsCards;
