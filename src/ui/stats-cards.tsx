@@ -69,8 +69,6 @@ interface PointData {
   id: 'tgeo' | 'shoth';
   x: number;
   y: number;
-  title: string;
-  subtitle: string;
   label: string;
   stars: string;
 }
@@ -80,8 +78,6 @@ const POINTS: PointData[] = [
     id: 'tgeo',
     x: 110,
     y: 101.5,
-    title: '15★ звезд',
-    subtitle: 'ТДжео (Темный Джеонозис)',
     label: 'ТДжео',
     stars: '15★',
   },
@@ -89,16 +85,14 @@ const POINTS: PointData[] = [
     id: 'shoth',
     x: 242,
     y: 60.2,
-    title: '36★ звезд',
-    subtitle: 'СХот (Светлый Хот)',
     label: 'СХот',
     stars: '36★',
   },
 ];
 
-const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
+const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
   const [active, setActive] = useState(false);
-  const [hoveredId, setHoveredId] = useState<'tgeo' | 'shoth' | null>('shoth');
+  const [hoveredId, setHoveredId] = useState<'tgeo' | 'shoth' | null>(null);
 
   useEffect(() => {
     if (active) return;
@@ -110,7 +104,7 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
   const curvePath = 'M 24 130 C 58 123, 82 109, 110 101.5 C 155 86, 196 68, 242 60.2 C 272 55, 294 48, 316 42';
   const areaPath = `${curvePath} L 316 130 L 24 130 Z`;
 
-  const activePoint = POINTS.find((p) => p.id === hoveredId) || null;
+  const RED_ACCENT = '#e11d48';
 
   return (
     <div
@@ -137,17 +131,17 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
             height: '100px',
             marginBottom: '26px',
             paddingRight: '8px',
-            fontSize: '0.72rem',
-            fontWeight: 500,
+            fontSize: '0.74rem',
+            fontWeight: 600,
             color: '#94a3b8',
             textAlign: 'right',
-            width: '42px',
+            width: '38px',
             flexShrink: 0,
           }}
         >
-          <span>50★</span>
-          <span>25★</span>
-          <span>0★</span>
+          <span>50*</span>
+          <span>25*</span>
+          <span>0*</span>
         </div>
 
         <div style={{ position: 'relative', flex: 1, height: '100%' }}>
@@ -160,24 +154,23 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
             }}
           >
             <defs>
-              <linearGradient id="trendAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0f172a" stopOpacity="0.16" />
-                <stop offset="70%" stopColor="#0f172a" stopOpacity="0.04" />
-                <stop offset="100%" stopColor="#0f172a" stopOpacity="0.0" />
+              <linearGradient id="pleasantRedAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={RED_ACCENT} stopOpacity="0.18" />
+                <stop offset="70%" stopColor={RED_ACCENT} stopOpacity="0.04" />
+                <stop offset="100%" stopColor={RED_ACCENT} stopOpacity="0.0" />
               </linearGradient>
 
-              <filter id="pointGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#0f172a" floodOpacity="0.25" />
+              <filter id="pointRedGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor={RED_ACCENT} floodOpacity="0.35" />
               </filter>
             </defs>
 
             <line x1="24" y1="30" x2="316" y2="30" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
             <line x1="24" y1="80" x2="316" y2="80" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
-            <line x1="24" y1="130" x2="316" y2="130" stroke="#e2e8f0" strokeWidth="1.5" />
 
             <path
               d={areaPath}
-              fill="url(#trendAreaGrad)"
+              fill="url(#pleasantRedAreaGrad)"
               style={{
                 opacity: active ? 1 : 0,
                 transition: 'opacity 1s ease 0.3s',
@@ -187,7 +180,7 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
             <path
               d={curvePath}
               fill="none"
-              stroke="#0f172a"
+              stroke={RED_ACCENT}
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -198,21 +191,6 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
               }}
             />
 
-            {activePoint && active && (
-              <line
-                x1={activePoint.x}
-                y1={activePoint.y}
-                x2={activePoint.x}
-                y2="130"
-                stroke="#94a3b8"
-                strokeWidth="1.2"
-                strokeDasharray="2 2"
-                style={{
-                  transition: 'x1 0.2s ease, x2 0.2s ease, y1 0.2s ease',
-                }}
-              />
-            )}
-
             {POINTS.map((pt, idx) => {
               const isHovered = hoveredId === pt.id;
               const delay = idx === 0 ? 0.6 : 0.95;
@@ -221,6 +199,7 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                 <g
                   key={pt.id}
                   onPointerEnter={() => setHoveredId(pt.id)}
+                  onPointerLeave={() => setHoveredId(null)}
                   style={{ cursor: 'pointer' }}
                 >
                   <circle cx={pt.x} cy={pt.y} r="22" fill="transparent" />
@@ -229,8 +208,8 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                     cx={pt.x}
                     cy={pt.y}
                     r={isHovered ? '9' : '6'}
-                    fill="#0f172a"
-                    fillOpacity={isHovered ? 0.22 : 0.12}
+                    fill={RED_ACCENT}
+                    fillOpacity={isHovered ? 0.25 : 0.12}
                     style={{
                       transform: active ? 'scale(1)' : 'scale(0)',
                       transformOrigin: `${pt.x}px ${pt.y}px`,
@@ -242,10 +221,10 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                     cx={pt.x}
                     cy={pt.y}
                     r={isHovered ? '4.5' : '3.5'}
-                    fill={isHovered ? '#ffffff' : '#0f172a'}
-                    stroke="#0f172a"
+                    fill={isHovered ? '#ffffff' : RED_ACCENT}
+                    stroke={RED_ACCENT}
                     strokeWidth={isHovered ? '2.5' : '0'}
-                    filter="url(#pointGlow)"
+                    filter="url(#pointRedGlow)"
                     style={{
                       transform: active ? 'scale(1)' : 'scale(0)',
                       transformOrigin: `${pt.x}px ${pt.y}px`,
@@ -257,9 +236,9 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                     x={pt.x}
                     y={pt.y - 12}
                     textAnchor="middle"
-                    fill={isHovered ? '#0f172a' : '#475569'}
+                    fill={isHovered ? RED_ACCENT : '#0f172a'}
                     fontSize={isHovered ? '12.5' : '11'}
-                    fontWeight={isHovered ? '800' : '700'}
+                    fontWeight="700"
                     style={{
                       opacity: active ? 1 : 0,
                       transition: `opacity 0.4s ease ${delay + 0.1}s, font-size 0.15s ease, fill 0.15s ease`,
@@ -272,7 +251,7 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
                     x={pt.x}
                     y="148"
                     textAnchor="middle"
-                    fill={isHovered ? '#0f172a' : '#64748b'}
+                    fill={isHovered ? RED_ACCENT : '#64748b'}
                     fontSize="12"
                     fontWeight={isHovered ? '700' : '500'}
                     style={{
@@ -285,51 +264,65 @@ const InteractiveTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
               );
             })}
           </svg>
-
-          {activePoint && active && (
-            <div
-              style={{
-                position: 'absolute',
-                left: `${(activePoint.x / 340) * 100}%`,
-                top: `${(activePoint.y / 160) * 100}%`,
-                transform: 'translate(-50%, calc(-100% - 18px))',
-                backgroundColor: '#0f172a',
-                color: '#ffffff',
-                padding: '6px 14px',
-                borderRadius: '9px',
-                boxShadow: '0 12px 28px -4px rgba(15, 23, 42, 0.32)',
-                pointerEvents: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                whiteSpace: 'nowrap',
-                zIndex: 20,
-                animation: 'chartTooltipIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              }}
-            >
-              <span style={{ fontSize: '0.82rem', fontWeight: 700, lineHeight: 1.2 }}>
-                {activePoint.title}
-              </span>
-              <span style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>
-                {activePoint.subtitle}
-              </span>
-
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: '-5px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: 0,
-                  height: 0,
-                  borderLeft: '5px solid transparent',
-                  borderRight: '5px solid transparent',
-                  borderTop: '5px solid #0f172a',
-                }}
-              />
-            </div>
-          )}
         </div>
+      </div>
+    </div>
+  );
+};
+
+const RunningTicker = ({
+  text,
+  direction = 'left',
+  speedSeconds = 38,
+}: {
+  text: string;
+  direction?: 'left' | 'right';
+  speedSeconds?: number;
+}) => {
+  const content = `${text}  ·  ${text}  ·  ${text}  ·  ${text}  ·  `;
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        display: 'flex',
+        userSelect: 'none',
+        padding: '0.75rem 0',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          width: 'max-content',
+          animation: `${direction === 'left' ? 'tickerScrollLeft' : 'tickerScrollRight'} ${speedSeconds}s linear infinite`,
+          willChange: 'transform',
+        }}
+      >
+        <span
+          style={{
+            fontSize: 'clamp(0.82rem, 1.05vw, 0.88rem)',
+            fontWeight: 500,
+            color: '#8392a5',
+            letterSpacing: '0.01em',
+            paddingRight: '1rem',
+          }}
+        >
+          {content}
+        </span>
+        <span
+          aria-hidden="true"
+          style={{
+            fontSize: 'clamp(0.82rem, 1.05vw, 0.88rem)',
+            fontWeight: 500,
+            color: '#8392a5',
+            letterSpacing: '0.01em',
+            paddingRight: '1rem',
+          }}
+        >
+          {content}
+        </span>
       </div>
     </div>
   );
@@ -342,11 +335,13 @@ const styles: Record<string, CSSProperties> = {
     backgroundColor: '#ffffff',
     display: 'flex',
     flexDirection: 'column',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 'clamp(6rem, 12vh, 9.5rem) 2rem',
+    padding: '0',
     color: '#0f172a',
     boxShadow: '0 32px 80px rgba(0, 0, 0, 0.3)',
+    overflow: 'hidden',
+    position: 'relative',
   },
   sectionWrapper: {
     display: 'flex',
@@ -354,6 +349,7 @@ const styles: Record<string, CSSProperties> = {
     alignItems: 'center',
     width: '100%',
     maxWidth: '1240px',
+    padding: 'clamp(3.5rem, 6vh, 5rem) 2rem',
     userSelect: 'none',
   },
   sectionHeading: {
@@ -361,7 +357,7 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 'clamp(2.1rem, 3.4vw, 2.85rem)',
     fontWeight: 400,
     letterSpacing: '-0.025em',
-    marginBottom: 'clamp(3rem, 6vh, 4.5rem)',
+    marginBottom: 'clamp(2.5rem, 5vh, 4rem)',
     textAlign: 'center',
   },
   statsRow: {
@@ -437,6 +433,23 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
 
   return (
     <div style={styles.whitePanel}>
+      <style>{`
+        @keyframes tickerScrollLeft {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
+        }
+        @keyframes tickerScrollRight {
+          0% { transform: translate3d(-50%, 0, 0); }
+          100% { transform: translate3d(0, 0, 0); }
+        }
+      `}</style>
+
+      <RunningTicker
+        text="Цифры обновляются раз в неделю, так что данные могут немножко отставать от реальных"
+        direction="left"
+        speedSeconds={42}
+      />
+
       <div style={{ ...styles.sectionWrapper, ...style }}>
         <h2 style={styles.sectionHeading}>Все-все Циферки</h2>
 
@@ -528,7 +541,7 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
               <span style={styles.headerTitle}>Звёзды за ВИ</span>
             </div>
 
-            <InteractiveTrendChart isTriggered={hasStarted} />
+            <PleasantRedTrendChart isTriggered={hasStarted} />
 
             <p style={styles.descriptionText}>
               Забираем максимум звезд на ключевых картах: стабильные 15 на Темном Джео и 36 на Светлом Хоте благодаря дисциплине и точечным приказам офицеров.
@@ -536,6 +549,12 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
           </div>
         </div>
       </div>
+
+      <RunningTicker
+        text="Лишь за последний месяц мы прибавили больше 25 млн. гм"
+        direction="right"
+        speedSeconds={36}
+      />
     </div>
   );
 };
