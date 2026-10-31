@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 
 export interface StatsCardsProps {
-  activeCardIndex: number;
-  highlightIntensity: number;
   isTriggered: boolean;
   style?: CSSProperties;
 }
@@ -70,41 +68,45 @@ const DigitReel = ({
 };
 
 const styles: Record<string, CSSProperties> = {
-  container: {
+  sectionWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: '1120px',
+    padding: '0 1.5rem',
+    userSelect: 'none',
+  },
+  sectionHeading: {
+    color: '#ffffff',
+    fontSize: 'clamp(1.75rem, 2.5vw, 2.25rem)',
+    fontWeight: 500,
+    letterSpacing: '-0.02em',
+    marginBottom: 'clamp(1.5rem, 2.8vh, 2.2rem)',
+    textAlign: 'center',
+  },
+  cardsContainer: {
     display: 'flex',
     alignItems: 'stretch',
     justifyContent: 'center',
     gap: 'clamp(1rem, 2vw, 1.5rem)',
     width: '100%',
-    maxWidth: '1080px',
-    padding: '0 1.5rem',
-    userSelect: 'none',
   },
   cardBase: {
     position: 'relative',
     flex: '1 1 0',
     minWidth: '240px',
-    maxWidth: '340px',
-    height: 'clamp(380px, 46vh, 440px)',
+    maxWidth: '350px',
+    height: 'clamp(390px, 48vh, 460px)',
     borderRadius: '24px',
     backgroundColor: '#15151c',
-    padding: 'clamp(1.5rem, 2.5vw, 2rem)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    padding: 'clamp(1.5rem, 2.4vw, 2rem)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     overflow: 'hidden',
     boxShadow: '0 18px 40px rgba(0, 0, 0, 0.65)',
-    transition: 'transform 0.3s ease, background-color 0.3s ease',
-  },
-  borderGlowLayer: {
-    position: 'absolute',
-    inset: 0,
-    borderRadius: '24px',
-    padding: '1px',
-    pointerEvents: 'none',
-    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-    WebkitMaskComposite: 'xor',
-    maskComposite: 'exclude',
   },
   cardHeader: {
     display: 'flex',
@@ -120,7 +122,7 @@ const styles: Record<string, CSSProperties> = {
   },
   counterRow: {
     display: 'flex',
-    alignItems: 'baseline',
+    alignItems: 'center',
     color: '#ffffff',
     fontSize: 'clamp(2.2rem, 3.2vw, 2.75rem)',
     fontWeight: 700,
@@ -128,6 +130,16 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1,
     marginTop: 'clamp(1.2rem, 2vh, 1.6rem)',
     zIndex: 2,
+  },
+  revaAvatar: {
+    width: '40px',
+    height: '40px',
+    borderRadius: '10px',
+    objectFit: 'cover',
+    marginRight: '0.65rem',
+    flexShrink: 0,
+    border: '1px solid rgba(255, 255, 255, 0.18)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
   },
   counterSuffix: {
     marginLeft: '0.45rem',
@@ -137,10 +149,10 @@ const styles: Record<string, CSSProperties> = {
     letterSpacing: '-0.01em',
   },
   descriptionText: {
-    marginTop: 'clamp(0.75rem, 1.5vh, 1rem)',
+    marginTop: 'clamp(0.85rem, 1.6vh, 1.15rem)',
     color: '#9e9ea8',
     fontSize: '0.92rem',
-    lineHeight: 1.55,
+    lineHeight: 1.6,
     letterSpacing: '-0.01em',
     zIndex: 2,
   },
@@ -148,136 +160,101 @@ const styles: Record<string, CSSProperties> = {
     position: 'absolute',
     inset: 0,
     pointerEvents: 'none',
-    backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.35) 1.2px, transparent 1.2px)',
+    backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.28) 1.2px, transparent 1.2px)',
     backgroundSize: '10px 10px',
-    WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 40%, rgba(0, 0, 0, 0.95) 100%)',
-    maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 40%, rgba(0, 0, 0, 0.95) 100%)',
-    transition: 'opacity 0.35s ease',
+    WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.95) 100%)',
+    maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.95) 100%)',
+    opacity: 0.85,
     zIndex: 1,
   },
 };
 
-export const StatsCards = ({
-  activeCardIndex,
-  highlightIntensity,
-  isTriggered,
-  style,
-}: StatsCardsProps) => {
-  const cardRefs = [
-    useRef<HTMLDivElement>(null),
-    useRef<HTMLDivElement>(null),
-    useRef<HTMLDivElement>(null),
-  ];
-
-  const [mousePositions, setMousePositions] = useState<Array<{ x: number; y: number }>>([
-    { x: 170, y: 220 },
-    { x: 170, y: 220 },
-    { x: 170, y: 220 },
-  ]);
-
-  useEffect(() => {
-    let animId: number | null = null;
-    const onGlobalPointerMove = (e: PointerEvent) => {
-      if (animId !== null) return;
-      animId = requestAnimationFrame(() => {
-        setMousePositions([0, 1, 2].map((i) => {
-          const el = cardRefs[i].current;
-          if (!el) return { x: 170, y: 220 };
-          const rect = el.getBoundingClientRect();
-          return {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top,
-          };
-        }));
-        animId = null;
-      });
-    };
-
-    window.addEventListener('pointermove', onGlobalPointerMove, { passive: true });
-    return () => {
-      window.removeEventListener('pointermove', onGlobalPointerMove);
-      if (animId !== null) cancelAnimationFrame(animId);
-    };
-  }, []);
-
+export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
   return (
-    <div style={{ ...styles.container, ...style }}>
-      {[0, 1, 2].map((idx) => {
-        const isCurrentActive = activeCardIndex === idx;
-        const currentIntensity = isCurrentActive ? highlightIntensity : 0;
-        const pos = mousePositions[idx];
+    <div style={{ ...styles.sectionWrapper, ...style }}>
+      <h2 style={styles.sectionHeading}>Циферки</h2>
 
-        const glowRadius = Math.max(180, Math.min(320, 210 + currentIntensity * 70));
-        const activeAlpha = 0.35 + 0.55 * currentIntensity;
-        const borderGradient = isCurrentActive && currentIntensity > 0.02
-          ? `radial-gradient(${glowRadius}px circle at ${pos.x}px ${pos.y}px, rgba(255, 255, 255, ${activeAlpha}), rgba(255, 255, 255, 0.16) 45%, rgba(255, 255, 255, 0.08) 100%)`
-          : 'rgba(255, 255, 255, 0.09)';
+      <div style={styles.cardsContainer}>
+        <div style={styles.cardBase}>
+          <div style={styles.patternOverlay} />
 
-        return (
-          <div
-            key={idx}
-            ref={cardRefs[idx]}
-            style={{
-              ...styles.cardBase,
-              transform: currentIntensity > 0.1 ? 'translateY(-4px)' : 'translateY(0)',
-            }}
-          >
-            <div
-              style={{
-                ...styles.borderGlowLayer,
-                background: borderGradient,
-              }}
-            />
-
-            <div
-              style={{
-                ...styles.patternOverlay,
-                opacity: currentIntensity > 0.05 ? currentIntensity : 0,
-              }}
-            />
-
-            {idx === 0 ? (
-              <>
-                <div style={styles.cardHeader}>
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M12 2L14.4 7.6L20 8.4L16 12.8L17 18.5L12 15.6L7 18.5L8 12.8L4 8.4L9.6 7.6L12 2Z"
-                      stroke="#ffffff"
-                      strokeWidth="1.8"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span style={styles.cardTitle}>Циферки</span>
-                </div>
-
-                <div style={styles.counterRow}>
-                  <DigitReel targetDigit={3} delayMs={100} isTriggered={isTriggered} />
-                  <DigitReel targetDigit={0} delayMs={260} isTriggered={isTriggered} />
-                  <DigitReel targetDigit={0} delayMs={420} isTriggered={isTriggered} />
-                  <span style={styles.counterSuffix}>млн гм</span>
-                </div>
-
-                <p style={styles.descriptionText}>
-                  Растем и развиваемся с каждым днем, уверенно расширяя влияние и поднимая планку гильдии.
-                </p>
-              </>
-            ) : (
-              <div style={{ display: 'flex', flex: 1, alignItems: 'flex-end', zIndex: 2 }}>
-                <span style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.3)' }}>
-                  Скоро здесь появится блок
-                </span>
-              </div>
-            )}
+          <div style={styles.cardHeader}>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M13 2L3 14H12L11 22L21 10H12L13 2Z"
+                stroke="#ffffff"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span style={styles.cardTitle}>Наша мощь</span>
           </div>
-        );
-      })}
+
+          <div style={styles.counterRow}>
+            <DigitReel targetDigit={3} delayMs={100} isTriggered={isTriggered} />
+            <DigitReel targetDigit={0} delayMs={240} isTriggered={isTriggered} />
+            <DigitReel targetDigit={0} delayMs={380} isTriggered={isTriggered} />
+            <span style={styles.counterSuffix}>млн гм</span>
+          </div>
+
+          <p style={styles.descriptionText}>
+            Уверенно растем и наращиваем суммарную мощь без лишней нервотрепки и духоты. Каждый участник развивает свой склад с умом, получая максимум отдачи, пока гильдия стабильно держит высокую планку в своем сегменте.
+          </p>
+        </div>
+
+        <div style={styles.cardBase}>
+          <div style={styles.patternOverlay} />
+
+          <div style={styles.cardHeader}>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                stroke="#ffffff"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span style={styles.cardTitle}>Что по фарму</span>
+          </div>
+
+          <div style={styles.counterRow}>
+            <img src="/reva.png" alt="Рева" style={styles.revaAvatar} />
+            <DigitReel targetDigit={3} delayMs={150} isTriggered={isTriggered} />
+            <DigitReel targetDigit={5} delayMs={300} isTriggered={isTriggered} />
+            <span style={styles.counterSuffix}>осколков</span>
+          </div>
+
+          <p style={styles.descriptionText}>
+            Меньше чем за год с нуля вышли на стабильный фарм Ревы. За одну ВИ забираем в среднем 35 осколков — четкие офицерские гайды, правильные модули и слаженность состава превращают сложные битвы в понятную рутину.
+          </p>
+        </div>
+
+        <div style={styles.cardBase}>
+          <div style={styles.patternOverlay} />
+
+          <div style={{ display: 'flex', flex: 1, alignItems: 'flex-end', zIndex: 2 }}>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.3)' }}>
+              Скоро здесь появится блок
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
