@@ -124,26 +124,6 @@ export const App = () => {
   const statsArrived = scrollTransition >= 0.98;
   const statsActive = scrollRatio >= 0.38;
 
-  let activeCardIndex = 0;
-  let highlightIntensity = 0;
-
-  if (scrollRatio >= 0.35 && scrollRatio < 0.6) {
-    activeCardIndex = 0;
-    if (scrollRatio < 0.5) {
-      highlightIntensity = 1;
-    } else {
-      highlightIntensity = 1 - (scrollRatio - 0.5) / 0.1;
-    }
-  } else if (scrollRatio >= 0.6 && scrollRatio < 0.78) {
-    activeCardIndex = 1;
-    const t = (scrollRatio - 0.6) / 0.18;
-    highlightIntensity = t < 0.6 ? t / 0.6 : (1 - t) / 0.4;
-  } else if (scrollRatio >= 0.78 && scrollRatio <= 0.95) {
-    activeCardIndex = 2;
-    const t = (scrollRatio - 0.78) / 0.17;
-    highlightIntensity = t < 0.6 ? t / 0.6 : (1 - t) / 0.4;
-  }
-
   useEffect(() => {
     if (scrollRatio >= 0.45 && activeSection !== 'stats') {
       setActiveSection('stats');
@@ -232,11 +212,7 @@ export const App = () => {
               pointerEvents: statsArrived ? 'auto' : 'none',
             }}
           >
-            <StatsCards
-              activeCardIndex={activeCardIndex}
-              highlightIntensity={highlightIntensity}
-              isTriggered={statsActive}
-            />
+            <StatsCards isTriggered={statsActive} />
           </div>
         </div>
       </div>
