@@ -19,13 +19,11 @@ const DigitReel = ({
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    if (!isTriggered) {
-      setActive(false);
-      return;
-    }
+    if (active) return;
+    if (!isTriggered) return;
     const timer = setTimeout(() => setActive(true), delayMs);
     return () => clearTimeout(timer);
-  }, [isTriggered, delayMs]);
+  }, [isTriggered, delayMs, active]);
 
   const digitHeight = 48;
   const targetIndex = DIGITS.lastIndexOf(targetDigit);
@@ -37,7 +35,7 @@ const DigitReel = ({
         display: 'inline-block',
         height: `${digitHeight}px`,
         overflow: 'hidden',
-        verticalAlign: 'top',
+        verticalAlign: 'baseline',
         lineHeight: `${digitHeight}px`,
       }}
     >
@@ -112,7 +110,7 @@ const styles: Record<string, CSSProperties> = {
   },
   counterRow: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'baseline',
     color: '#ffffff',
     fontSize: 'clamp(2.5rem, 3.8vw, 3.25rem)',
     fontWeight: 700,
@@ -121,12 +119,14 @@ const styles: Record<string, CSSProperties> = {
     marginTop: 'clamp(1rem, 2vh, 1.4rem)',
   },
   revaImage: {
-    width: '44px',
-    height: '44px',
+    width: '42px',
+    height: '42px',
     objectFit: 'contain',
     marginRight: '0.55rem',
     flexShrink: 0,
-    display: 'block',
+    display: 'inline-block',
+    verticalAlign: 'baseline',
+    alignSelf: 'center',
     background: 'none',
   },
   counterSuffix: {
@@ -135,6 +135,8 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: 500,
     color: 'rgba(255, 255, 255, 0.55)',
     letterSpacing: '-0.01em',
+    lineHeight: 1,
+    alignSelf: 'baseline',
   },
   descriptionText: {
     marginTop: 'clamp(0.85rem, 1.8vh, 1.25rem)',
@@ -146,6 +148,14 @@ const styles: Record<string, CSSProperties> = {
 };
 
 export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
+  const [hasStarted, setHasStarted] = useState(false);
+
+  useEffect(() => {
+    if (isTriggered && !hasStarted) {
+      setHasStarted(true);
+    }
+  }, [isTriggered, hasStarted]);
+
   return (
     <div style={{ ...styles.sectionWrapper, ...style }}>
       <h2 style={styles.sectionHeading}>Циферки</h2>
@@ -173,9 +183,9 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
           </div>
 
           <div style={styles.counterRow}>
-            <DigitReel targetDigit={3} delayMs={100} isTriggered={isTriggered} />
-            <DigitReel targetDigit={0} delayMs={240} isTriggered={isTriggered} />
-            <DigitReel targetDigit={0} delayMs={380} isTriggered={isTriggered} />
+            <DigitReel targetDigit={3} delayMs={100} isTriggered={hasStarted} />
+            <DigitReel targetDigit={0} delayMs={240} isTriggered={hasStarted} />
+            <DigitReel targetDigit={0} delayMs={380} isTriggered={hasStarted} />
             <span style={styles.counterSuffix}>млн гм</span>
           </div>
 
@@ -207,8 +217,8 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
 
           <div style={styles.counterRow}>
             <img src="/reva.png" alt="Рева" style={styles.revaImage} />
-            <DigitReel targetDigit={3} delayMs={150} isTriggered={isTriggered} />
-            <DigitReel targetDigit={5} delayMs={300} isTriggered={isTriggered} />
+            <DigitReel targetDigit={3} delayMs={150} isTriggered={hasStarted} />
+            <DigitReel targetDigit={5} delayMs={300} isTriggered={hasStarted} />
             <span style={styles.counterSuffix}>осколков</span>
           </div>
 
