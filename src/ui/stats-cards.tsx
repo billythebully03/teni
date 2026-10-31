@@ -1,12 +1,24 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import StickerPeel from './StickerPeel';
+import StickerPeel, { type StickerFinish } from './StickerPeel';
 
 export interface StatsCardsProps {
   isTriggered: boolean;
   style?: CSSProperties;
 }
 
-const STICKER_POOL = ['/credit.png', '/dzeta.png', '/conquer.png'];
+const STICKER_POOL = [
+  '/credit.png',
+  '/dzeta.png',
+  '/conquer.png',
+  '/crystal.png',
+  '/omicron.png',
+  '/mk3.png',
+];
+
+const isHoloCandidate = (src: string): boolean => {
+  const s = src.toLowerCase();
+  return s.includes('dzeta') || s.includes('crystal');
+};
 
 const DIGITS = [0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
 
@@ -403,27 +415,51 @@ const styles: Record<string, CSSProperties> = {
 export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
   const [hasStarted, setHasStarted] = useState(false);
 
-  const [selectedStickers] = useState(() => {
+  const [selectedStickers] = useState<{ src: string; finish: StickerFinish }[]>(() => {
     const pool = [...STICKER_POOL];
     const idx1 = Math.floor(Math.random() * pool.length);
     const first = pool.splice(idx1, 1)[0];
     const idx2 = Math.floor(Math.random() * pool.length);
     const second = pool[idx2];
-    return [first, second];
+
+    const firstEligible = isHoloCandidate(first);
+    const secondEligible = isHoloCandidate(second);
+
+    let firstFinish: StickerFinish = 'gloss';
+    let secondFinish: StickerFinish = 'gloss';
+
+    if (firstEligible && secondEligible) {
+      if (Math.random() > 0.5) {
+        firstFinish = 'holo';
+      } else {
+        secondFinish = 'holo';
+      }
+    } else if (firstEligible) {
+      firstFinish = 'holo';
+    } else if (secondEligible) {
+      secondFinish = 'holo';
+    }
+
+    return [
+      { src: first, finish: firstFinish },
+      { src: second, finish: secondFinish },
+    ];
   });
 
   const [positions, setPositions] = useState({
-    topLeft: { x: -360, y: -200 },
-    bottomRight: { x: 360, y: 200 },
+    topLeft: { x: -480, y: -290 },
+    bottomRight: { x: 480, y: 290 },
   });
 
   useEffect(() => {
     const updatePositions = () => {
       const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
-      const offsetX = Math.max(140, Math.min(460, w * 0.36));
+      const h = typeof window !== 'undefined' ? window.innerHeight : 800;
+      const offsetX = Math.max(160, Math.min(620, w * 0.44));
+      const offsetY = Math.max(180, Math.min(360, h * 0.38));
       setPositions({
-        topLeft: { x: -offsetX, y: -200 },
-        bottomRight: { x: offsetX, y: 200 },
+        topLeft: { x: -offsetX, y: -offsetY },
+        bottomRight: { x: offsetX, y: offsetY },
       });
     };
     updatePositions();
@@ -440,36 +476,34 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
   return (
     <div style={styles.whitePanel}>
       <StickerPeel
-        imageSrc={selectedStickers[0]}
+        imageSrc={selectedStickers[0].src}
         width={150}
-        rotate={-12}
-        peelDirection={40}
-        peelBackHoverPct={28}
-        peelBackActivePct={42}
+        rotate={-14}
+        peelDirection={35}
+        peelBackHoverPct={26}
+        peelBackActivePct={40}
         curlRadius={14}
-        finish="gloss"
+        finish={selectedStickers[0].finish}
         backColor="#e4e4e7"
-        borderColor="#e2e8f0"
-        borderWidth={2.5}
         initialPosition={positions.topLeft}
+        swing={0.35}
         draggable
         followPointer
         intro
       />
 
       <StickerPeel
-        imageSrc={selectedStickers[1]}
+        imageSrc={selectedStickers[1].src}
         width={150}
-        rotate={10}
-        peelDirection={-140}
-        peelBackHoverPct={28}
-        peelBackActivePct={42}
+        rotate={12}
+        peelDirection={-145}
+        peelBackHoverPct={26}
+        peelBackActivePct={40}
         curlRadius={14}
-        finish="gloss"
+        finish={selectedStickers[1].finish}
         backColor="#e4e4e7"
-        borderColor="#e2e8f0"
-        borderWidth={2.5}
         initialPosition={positions.bottomRight}
+        swing={0.35}
         draggable
         followPointer
         intro
@@ -488,7 +522,7 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
                 aria-hidden="true"
               >
                 <path
-                  d="M2 19H22V21H2V19ZM3.5 17L2 7L7.5 11.5L12 4L16.5 11.5L22 7L20.5 17H3.5Z"
+                  d="M12 1L3 5V11.5C3 17.5 6.8 21.6 12 23C17.2 21.6 21 17.5 21 11.5V5L12 1ZM13 13.5H16.5L10.5 20V14.5H7.5L13.5 4V13.5H13Z"
                   fill="#0f172a"
                 />
               </svg>
@@ -541,39 +575,4 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
             </div>
 
             <p style={styles.descriptionText}>
-              Меньше чем за год с нуля вышли на стабильный фарм Ревы. За одну ВИ забираем в среднем 35 осколков — четкие офицерские гайды, правильные модули и слаженность состава превращают сложные битвы в понятную рутину.
-            </p>
-          </div>
-
-          <div style={styles.statColumn}>
-            <div style={styles.headerRow}>
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  d="M12 1L14.8 9.2L23 12L14.8 14.8L12 23L9.2 14.8L1 12L9.2 9.2L12 1Z"
-                  fill="#0f172a"
-                />
-                <circle cx="19.5" cy="4.5" r="2.2" fill="#0f172a" />
-              </svg>
-              <span style={styles.headerTitle}>Звёзды за ВИ</span>
-            </div>
-
-            <PleasantRedTrendChart isTriggered={hasStarted} />
-
-            <p style={styles.descriptionText}>
-              Забираем максимум звезд на ключевых картах: стабильные 15 на Темном Джео и 36 на Светлом Хоте благодаря дисциплине и точечным приказам офицеров.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default StatsCards;
+              Меньше чем за год с нуля вышли на стабильный фарм Ревы. За одну ВИ забираем в среднем 35 осколков — четкие офицерские гайды, правильные мод
