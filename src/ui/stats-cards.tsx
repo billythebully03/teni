@@ -87,14 +87,14 @@ const styles: Record<string, CSSProperties> = {
     maxWidth: '340px',
     height: 'clamp(380px, 46vh, 440px)',
     borderRadius: '24px',
-    backgroundColor: '#0c0c0f',
+    backgroundColor: '#15151c',
     padding: 'clamp(1.5rem, 2.5vw, 2rem)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     overflow: 'hidden',
-    boxShadow: '0 16px 36px rgba(0, 0, 0, 0.55)',
-    transition: 'transform 0.3s ease',
+    boxShadow: '0 18px 40px rgba(0, 0, 0, 0.65)',
+    transition: 'transform 0.3s ease, background-color 0.3s ease',
   },
   borderGlowLayer: {
     position: 'absolute',
@@ -105,7 +105,6 @@ const styles: Record<string, CSSProperties> = {
     WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
     WebkitMaskComposite: 'xor',
     maskComposite: 'exclude',
-    transition: 'opacity 0.25s ease',
   },
   cardHeader: {
     display: 'flex',
@@ -134,12 +133,12 @@ const styles: Record<string, CSSProperties> = {
     marginLeft: '0.45rem',
     fontSize: 'clamp(1rem, 1.4vw, 1.2rem)',
     fontWeight: 500,
-    color: 'rgba(255, 255, 255, 0.45)',
+    color: 'rgba(255, 255, 255, 0.55)',
     letterSpacing: '-0.01em',
   },
   descriptionText: {
     marginTop: 'clamp(0.75rem, 1.5vh, 1rem)',
-    color: '#8e8e96',
+    color: '#9e9ea8',
     fontSize: '0.92rem',
     lineHeight: 1.55,
     letterSpacing: '-0.01em',
@@ -149,10 +148,10 @@ const styles: Record<string, CSSProperties> = {
     position: 'absolute',
     inset: 0,
     pointerEvents: 'none',
-    backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.32) 1.2px, transparent 1.2px)',
+    backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.35) 1.2px, transparent 1.2px)',
     backgroundSize: '10px 10px',
-    WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.95) 100%)',
-    maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.95) 100%)',
+    WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 40%, rgba(0, 0, 0, 0.95) 100%)',
+    maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 40%, rgba(0, 0, 0, 0.95) 100%)',
     transition: 'opacity 0.35s ease',
     zIndex: 1,
   },
@@ -176,18 +175,30 @@ export const StatsCards = ({
     { x: 170, y: 220 },
   ]);
 
-  const handlePointerMove = (index: number, e: React.PointerEvent<HTMLDivElement>) => {
-    const el = cardRefs[index].current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setMousePositions((prev) => {
-      const copy = [...prev];
-      copy[index] = { x, y };
-      return copy;
-    });
-  };
+  useEffect(() => {
+    let animId: number | null = null;
+    const onGlobalPointerMove = (e: PointerEvent) => {
+      if (animId !== null) return;
+      animId = requestAnimationFrame(() => {
+        setMousePositions([0, 1, 2].map((i) => {
+          const el = cardRefs[i].current;
+          if (!el) return { x: 170, y: 220 };
+          const rect = el.getBoundingClientRect();
+          return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+          };
+        }));
+        animId = null;
+      });
+    };
+
+    window.addEventListener('pointermove', onGlobalPointerMove, { passive: true });
+    return () => {
+      window.removeEventListener('pointermove', onGlobalPointerMove);
+      if (animId !== null) cancelAnimationFrame(animId);
+    };
+  }, []);
 
   return (
     <div style={{ ...styles.container, ...style }}>
@@ -196,17 +207,16 @@ export const StatsCards = ({
         const currentIntensity = isCurrentActive ? highlightIntensity : 0;
         const pos = mousePositions[idx];
 
-        const glowRadius = Math.max(160, Math.min(260, 180 + currentIntensity * 60));
-        const activeAlpha = 0.2 + 0.65 * currentIntensity;
+        const glowRadius = Math.max(180, Math.min(320, 210 + currentIntensity * 70));
+        const activeAlpha = 0.35 + 0.55 * currentIntensity;
         const borderGradient = isCurrentActive && currentIntensity > 0.02
-          ? `radial-gradient(${glowRadius}px circle at ${pos.x}px ${pos.y}px, rgba(255, 255, 255, ${activeAlpha}), rgba(255, 255, 255, 0.12) 45%, rgba(255, 255, 255, 0.06) 100%)`
-          : 'rgba(255, 255, 255, 0.07)';
+          ? `radial-gradient(${glowRadius}px circle at ${pos.x}px ${pos.y}px, rgba(255, 255, 255, ${activeAlpha}), rgba(255, 255, 255, 0.16) 45%, rgba(255, 255, 255, 0.08) 100%)`
+          : 'rgba(255, 255, 255, 0.09)';
 
         return (
           <div
             key={idx}
             ref={cardRefs[idx]}
-            onPointerMove={(e) => handlePointerMove(idx, e)}
             style={{
               ...styles.cardBase,
               transform: currentIntensity > 0.1 ? 'translateY(-4px)' : 'translateY(0)',
@@ -216,14 +226,13 @@ export const StatsCards = ({
               style={{
                 ...styles.borderGlowLayer,
                 background: borderGradient,
-                opacity: 1,
               }}
             />
 
             <div
               style={{
                 ...styles.patternOverlay,
-                opacity: currentIntensity > 0.08 ? currentIntensity : 0,
+                opacity: currentIntensity > 0.05 ? currentIntensity : 0,
               }}
             />
 
@@ -261,7 +270,7 @@ export const StatsCards = ({
               </>
             ) : (
               <div style={{ display: 'flex', flex: 1, alignItems: 'flex-end', zIndex: 2 }}>
-                <span style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.25)' }}>
+                <span style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.3)' }}>
                   Скоро здесь появится блок
                 </span>
               </div>
