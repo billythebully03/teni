@@ -91,35 +91,35 @@ interface PointData {
 const POINTS: PointData[] = [
   {
     id: 'tgeo',
-    x: 110,
-    y: 101.5,
+    x: 95,
+    y: 68,
     label: 'ТДжео',
     stars: '15★',
   },
   {
     id: 'shoth',
-    x: 242,
-    y: 60.2,
+    x: 225,
+    y: 34.4,
     label: 'СХот',
     stars: '36★',
   },
 ];
 
 const getYOnCurve = (x: number): number => {
-  const clampX = Math.max(24, Math.min(316, x));
-  if (clampX <= 110) {
-    const t = (clampX - 24) / (110 - 24);
+  const clampX = Math.max(20, Math.min(305, x));
+  if (clampX <= 95) {
+    const t = (clampX - 20) / (95 - 20);
     const ease = t * t * (3 - 2 * t);
-    return 130 + (101.5 - 130) * ease;
+    return 92 + (68 - 92) * ease;
   }
-  if (clampX <= 242) {
-    const t = (clampX - 110) / (242 - 110);
+  if (clampX <= 225) {
+    const t = (clampX - 95) / (225 - 95);
     const ease = t * t * (3 - 2 * t);
-    return 101.5 + (60.2 - 101.5) * ease;
+    return 68 + (34.4 - 68) * ease;
   }
-  const t = (clampX - 242) / (316 - 242);
+  const t = (clampX - 225) / (305 - 225);
   const ease = t * t * (3 - 2 * t);
-  return 60.2 + (42 - 60.2) * ease;
+  return 34.4 + (20 - 34.4) * ease;
 };
 
 const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
@@ -134,8 +134,8 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
     return () => clearTimeout(timer);
   }, [isTriggered, active]);
 
-  const curvePath = 'M 24 130 C 58 123, 82 109, 110 101.5 C 155 86, 196 68, 242 60.2 C 272 55, 294 48, 316 42';
-  const areaPath = `${curvePath} L 316 130 L 24 130 Z`;
+  const curvePath = 'M 20 92 C 50 86, 72 74, 95 68 C 140 56, 180 42, 225 34.4 C 255 29, 280 24, 305 20';
+  const areaPath = `${curvePath} L 305 92 L 20 92 Z`;
 
   const RED_ACCENT = '#e11d48';
 
@@ -144,7 +144,7 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
     const relativeX = e.clientX - rect.left;
-    const svgX = Math.max(24, Math.min(316, (relativeX / rect.width) * 340));
+    const svgX = Math.max(20, Math.min(305, (relativeX / rect.width) * 320));
     const svgY = getYOnCurve(svgX);
     setCursorPos({ x: svgX, y: svgY });
   };
@@ -158,167 +158,159 @@ const PleasantRedTrendChart = ({ isTriggered }: { isTriggered: boolean }) => {
       style={{
         position: 'relative',
         width: '100%',
-        marginTop: 'clamp(0.85rem, 1.8vh, 1.25rem)',
+        height: '100px',
+        display: 'flex',
+        alignItems: 'center',
         userSelect: 'none',
       }}
     >
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
-          width: '100%',
-          height: '165px',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          height: '80px',
+          paddingRight: '6px',
+          fontSize: '0.7rem',
+          fontWeight: 600,
+          color: '#94a3b8',
+          textAlign: 'right',
+          width: '32px',
+          flexShrink: 0,
         }}
       >
-        <div
+        <span>50*</span>
+        <span>25*</span>
+        <span>0*</span>
+      </div>
+
+      <div style={{ position: 'relative', flex: 1, height: '100px' }}>
+        <svg
+          ref={svgRef}
+          viewBox="0 0 320 100"
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            height: '100px',
-            marginBottom: '26px',
-            paddingRight: '8px',
-            fontSize: '0.74rem',
-            fontWeight: 600,
-            color: '#94a3b8',
-            textAlign: 'right',
-            width: '38px',
-            flexShrink: 0,
+            width: '100%',
+            height: '100%',
+            overflow: 'visible',
+            cursor: 'crosshair',
           }}
         >
-          <span>50*</span>
-          <span>25*</span>
-          <span>0*</span>
-        </div>
+          <defs>
+            <linearGradient id="pleasantRedAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={RED_ACCENT} stopOpacity="0.18" />
+              <stop offset="70%" stopColor={RED_ACCENT} stopOpacity="0.04" />
+              <stop offset="100%" stopColor={RED_ACCENT} stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
 
-        <div style={{ position: 'relative', flex: 1, height: '100%' }}>
-          <svg
-            ref={svgRef}
-            viewBox="0 0 340 160"
-            onPointerMove={handlePointerMove}
-            onPointerLeave={handlePointerLeave}
+          <line x1="20" y1="12" x2="305" y2="12" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+          <line x1="20" y1="52" x2="305" y2="52" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+
+          <path
+            d={areaPath}
+            fill="url(#pleasantRedAreaGrad)"
             style={{
-              width: '100%',
-              height: '100%',
-              overflow: 'visible',
-              cursor: 'crosshair',
+              opacity: active ? 1 : 0,
+              transition: 'opacity 1s ease 0.3s',
+            }}
+          />
+
+          <path
+            d={curvePath}
+            fill="none"
+            stroke={RED_ACCENT}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              strokeDasharray: 380,
+              strokeDashoffset: active ? 0 : 380,
+              transition: 'stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          />
+
+          <g
+            style={{
+              opacity: cursorPos && active ? 1 : 0,
+              transition: 'opacity 0.2s ease',
+              pointerEvents: 'none',
             }}
           >
-            <defs>
-              <linearGradient id="pleasantRedAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={RED_ACCENT} stopOpacity="0.18" />
-                <stop offset="70%" stopColor={RED_ACCENT} stopOpacity="0.04" />
-                <stop offset="100%" stopColor={RED_ACCENT} stopOpacity="0.0" />
-              </linearGradient>
-            </defs>
+            {cursorPos && (
+              <>
+                <line
+                  x1={cursorPos.x}
+                  y1={cursorPos.y}
+                  x2={cursorPos.x}
+                  y2="92"
+                  stroke={RED_ACCENT}
+                  strokeWidth="1.2"
+                  strokeDasharray="3 3"
+                  strokeOpacity="0.75"
+                />
+                <line
+                  x1={cursorPos.x}
+                  y1={cursorPos.y}
+                  x2="20"
+                  y2={cursorPos.y}
+                  stroke={RED_ACCENT}
+                  strokeWidth="1.2"
+                  strokeDasharray="3 3"
+                  strokeOpacity="0.75"
+                />
+                <circle cx={cursorPos.x} cy={cursorPos.y} r="3.5" fill={RED_ACCENT} />
+              </>
+            )}
+          </g>
 
-            <line x1="24" y1="30" x2="316" y2="30" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
-            <line x1="24" y1="80" x2="316" y2="80" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+          {POINTS.map((pt, idx) => {
+            const delay = idx === 0 ? 0.6 : 0.95;
 
-            <path
-              d={areaPath}
-              fill="url(#pleasantRedAreaGrad)"
-              style={{
-                opacity: active ? 1 : 0,
-                transition: 'opacity 1s ease 0.3s',
-              }}
-            />
+            return (
+              <g key={pt.id} style={{ pointerEvents: 'none' }}>
+                <circle
+                  cx={pt.x}
+                  cy={pt.y}
+                  r="4"
+                  fill={RED_ACCENT}
+                  style={{
+                    transform: active ? 'scale(1)' : 'scale(0)',
+                    transformOrigin: `${pt.x}px ${pt.y}px`,
+                    transition: `transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
+                  }}
+                />
 
-            <path
-              d={curvePath}
-              fill="none"
-              stroke={RED_ACCENT}
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{
-                strokeDasharray: 440,
-                strokeDashoffset: active ? 0 : 440,
-                transition: 'stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-            />
+                <text
+                  x={pt.x}
+                  y={pt.y - 10}
+                  textAnchor="middle"
+                  fill={RED_ACCENT}
+                  fontSize="11.5"
+                  fontWeight="700"
+                  style={{
+                    opacity: active ? 1 : 0,
+                    transition: `opacity 0.4s ease ${delay + 0.1}s`,
+                  }}
+                >
+                  {pt.stars}
+                </text>
 
-            <g
-              style={{
-                opacity: cursorPos && active ? 1 : 0,
-                transition: 'opacity 0.2s ease',
-                pointerEvents: 'none',
-              }}
-            >
-              {cursorPos && (
-                <>
-                  <line
-                    x1={cursorPos.x}
-                    y1={cursorPos.y}
-                    x2={cursorPos.x}
-                    y2="130"
-                    stroke={RED_ACCENT}
-                    strokeWidth="1.2"
-                    strokeDasharray="3 3"
-                    strokeOpacity="0.75"
-                  />
-                  <line
-                    x1={cursorPos.x}
-                    y1={cursorPos.y}
-                    x2="24"
-                    y2={cursorPos.y}
-                    stroke={RED_ACCENT}
-                    strokeWidth="1.2"
-                    strokeDasharray="3 3"
-                    strokeOpacity="0.75"
-                  />
-                  <circle cx={cursorPos.x} cy={cursorPos.y} r="3.5" fill={RED_ACCENT} />
-                </>
-              )}
-            </g>
-
-            {POINTS.map((pt, idx) => {
-              const delay = idx === 0 ? 0.6 : 0.95;
-
-              return (
-                <g key={pt.id} style={{ pointerEvents: 'none' }}>
-                  <circle
-                    cx={pt.x}
-                    cy={pt.y}
-                    r="4"
-                    fill={RED_ACCENT}
-                    style={{
-                      transform: active ? 'scale(1)' : 'scale(0)',
-                      transformOrigin: `${pt.x}px ${pt.y}px`,
-                      transition: `transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
-                    }}
-                  />
-
-                  <text
-                    x={pt.x}
-                    y={pt.y - 12}
-                    textAnchor="middle"
-                    fill={RED_ACCENT}
-                    fontSize="12.5"
-                    fontWeight="700"
-                    style={{
-                      opacity: active ? 1 : 0,
-                      transition: `opacity 0.4s ease ${delay + 0.1}s`,
-                    }}
-                  >
-                    {pt.stars}
-                  </text>
-
-                  <text
-                    x={pt.x}
-                    y="148"
-                    textAnchor="middle"
-                    fill="#64748b"
-                    fontSize="12"
-                    fontWeight="500"
-                  >
-                    {pt.label}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-        </div>
+                <text
+                  x={pt.x}
+                  y={pt.y + 18}
+                  textAnchor="middle"
+                  fill="#64748b"
+                  fontSize="11"
+                  fontWeight="500"
+                >
+                  {pt.label}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
       </div>
     </div>
   );
@@ -353,7 +345,7 @@ const styles: Record<string, CSSProperties> = {
   statsRow: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
     gap: 'clamp(2.5rem, 4.5vw, 4rem)',
     width: '100%',
   },
@@ -361,8 +353,10 @@ const styles: Record<string, CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
+    height: '100%',
   },
   headerRow: {
+    height: '28px',
     display: 'flex',
     alignItems: 'center',
     gap: '0.65rem',
@@ -372,6 +366,14 @@ const styles: Record<string, CSSProperties> = {
     fontSize: '1.25rem',
     fontWeight: 400,
     letterSpacing: '-0.015em',
+    lineHeight: 1,
+  },
+  metricSlot: {
+    height: '100px',
+    width: '100%',
+    marginTop: '1.25rem',
+    display: 'flex',
+    alignItems: 'center',
   },
   counterRow: {
     display: 'flex',
@@ -381,7 +383,6 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: 700,
     letterSpacing: '-0.035em',
     lineHeight: 1,
-    marginTop: 'clamp(1rem, 2vh, 1.4rem)',
   },
   revaImage: {
     width: '42px',
@@ -404,7 +405,7 @@ const styles: Record<string, CSSProperties> = {
     alignSelf: 'baseline',
   },
   descriptionText: {
-    marginTop: 'clamp(0.85rem, 1.8vh, 1.25rem)',
+    marginTop: '1.25rem',
     color: '#475569',
     fontSize: 'clamp(0.92rem, 1.1vw, 1rem)',
     lineHeight: 1.6,
@@ -529,11 +530,13 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
               <span style={styles.headerTitle}>Наша мощь</span>
             </div>
 
-            <div style={styles.counterRow}>
-              <DigitReel targetDigit={3} delayMs={100} isTriggered={hasStarted} />
-              <DigitReel targetDigit={0} delayMs={240} isTriggered={hasStarted} />
-              <DigitReel targetDigit={0} delayMs={380} isTriggered={hasStarted} />
-              <span style={styles.counterSuffix}>млн гм</span>
+            <div style={styles.metricSlot}>
+              <div style={styles.counterRow}>
+                <DigitReel targetDigit={3} delayMs={100} isTriggered={hasStarted} />
+                <DigitReel targetDigit={0} delayMs={240} isTriggered={hasStarted} />
+                <DigitReel targetDigit={0} delayMs={380} isTriggered={hasStarted} />
+                <span style={styles.counterSuffix}>млн гм</span>
+              </div>
             </div>
 
             <p style={styles.descriptionText}>
@@ -567,11 +570,13 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
               <span style={styles.headerTitle}>Что по фарму</span>
             </div>
 
-            <div style={styles.counterRow}>
-              <img src="/reva.png" alt="Рева" style={styles.revaImage} />
-              <DigitReel targetDigit={3} delayMs={150} isTriggered={hasStarted} />
-              <DigitReel targetDigit={5} delayMs={300} isTriggered={hasStarted} />
-              <span style={styles.counterSuffix}>осколков</span>
+            <div style={styles.metricSlot}>
+              <div style={styles.counterRow}>
+                <img src="/reva.png" alt="Рева" style={styles.revaImage} />
+                <DigitReel targetDigit={3} delayMs={150} isTriggered={hasStarted} />
+                <DigitReel targetDigit={5} delayMs={300} isTriggered={hasStarted} />
+                <span style={styles.counterSuffix}>осколков</span>
+              </div>
             </div>
 
             <p style={styles.descriptionText}>
@@ -598,10 +603,12 @@ export const StatsCards = ({ isTriggered, style }: StatsCardsProps) => {
               <span style={styles.headerTitle}>Звёзды за ВИ</span>
             </div>
 
-            <PleasantRedTrendChart isTriggered={hasStarted} />
+            <div style={styles.metricSlot}>
+              <PleasantRedTrendChart isTriggered={hasStarted} />
+            </div>
 
             <p style={styles.descriptionText}>
-              Забираем максимум звезд на ключевых картах: стабильные 15 на Темном Джео и 36 на Светлом Хоте благодаря дисциплине и точечным приказам офицеров.
+              Забираем максимум звезд на ключевых картах: стабильные 15 на Темном Джео и 36 на Светлом Хоте благодаря дисциплине и точечным приказам офицеров. Постоянно оптимизируем расстановку взводов для стабильного результата.
             </p>
           </div>
         </div>
